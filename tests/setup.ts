@@ -12,7 +12,7 @@ export async function setup({
     join(
       "./recordings/",
       test.info().title.replaceAll(/\s+/g, "_").toLowerCase(),
-      "test.mov"
+      `test_${test.info().retry}.mov`
     )
   );
 
