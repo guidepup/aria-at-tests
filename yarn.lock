@@ -24,17 +24,17 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@guidepup/guidepup@^0.14.1":
-  version "0.14.1"
-  resolved "https://registry.yarnpkg.com/@guidepup/guidepup/-/guidepup-0.14.1.tgz#aadecf45603582adcd683c86dd1338e0184df06c"
-  integrity sha512-Yb6q7JXEsT7UYSw+7XL4HIlL0fTGhL6gr9ZERB4P3Mh/DLhqwXstjrtLtLJBv70WKwx088o3Q/4mjUJ00C2yQw==
+"@guidepup/guidepup@^0.14.3":
+  version "0.14.3"
+  resolved "https://registry.yarnpkg.com/@guidepup/guidepup/-/guidepup-0.14.3.tgz#eb4a156473b4dbe045ac572f2682bbc386abf2ca"
+  integrity sha512-vi+ucV7NSUJiT6lctoHB6RfAndVjZmNwxMhPbmpU4EkX2s3v1bBCKGJH5qIYJMf2pjCeaJVPpgy1n7eQA/CTwg==
 
-"@guidepup/playwright@^0.7.1":
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/@guidepup/playwright/-/playwright-0.7.1.tgz#f2391435ee412ff2e4dae639db2ad7f3641f66bc"
-  integrity sha512-CRteF/Mj17zgDfHhZ/8b9rFXUFGGZ4bOHWjzAmcW3Mr6iuN5sQLiqgK9sTMtc2qVSME7Q67nh1lDwkjAK88XKw==
+"@guidepup/playwright@^0.7.3":
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/@guidepup/playwright/-/playwright-0.7.3.tgz#919a7caa31c3a5ea24977d1cbcb8f0b42f587553"
+  integrity sha512-rtu+o/PEoChk+yNSy+mScvHx9XYRSd/p+ggYUel6wc1tK7hvdbesJQMZ+GWT5tdthemNB9q2x7TK0R95af2rcg==
   dependencies:
-    "@guidepup/guidepup" "^0.14.1"
+    "@guidepup/guidepup" "^0.14.3"
 
 "@humanwhocodes/config-array@^0.10.4":
   version "0.10.4"
