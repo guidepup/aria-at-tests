@@ -1,6 +1,9 @@
-import { macOSRecord } from "@guidepup/guidepup";
+// import { macOSRecord } from "@guidepup/guidepup";
 import { platform, release } from "os";
 import { join } from "path";
+import { execSync, spawn } from "child_process";
+import { dirname } from "path";
+import { unlinkSync } from "fs";
 
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -12,7 +15,30 @@ export async function record({ test }): Promise<() => void> {
   const fileName = `test_${platform()}_${release()}_${retry}.mov`;
   const filePath = join("./recordings/", directoryPath, fileName);
 
-  return macOSRecord(filePath);
+  // return macOSRecord(filePath);
+
+  execSync(`mkdir -p ${dirname(filePath)}`);
+
+  try {
+    unlinkSync(filePath);
+  } catch (_) {
+    // file doesn't exist.
+  }
+
+  const screencapture = spawn("/usr/sbin/screencapture", [
+    "-v",
+    "-C",
+    "-k",
+    "-T0",
+    "-g",
+    "-m",
+    `-R0,0,1440,900`,
+    filePath,
+  ]);
+
+  return () => {
+    screencapture.stdin.write("q");
+  };
 }
 
 export async function setup({ page, testUrl, voiceOver }): Promise<void> {
