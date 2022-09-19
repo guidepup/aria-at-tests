@@ -29,8 +29,8 @@
     "test": "playwright test"
   },
   "dependencies": {
-    "@guidepup/guidepup": "^0.14.1",
-    "@guidepup/playwright": "^0.7.1",
+    "@guidepup/guidepup": "^0.14.3",
+    "@guidepup/playwright": "^0.7.3",
     "@playwright/test": "^1.25.2"
   },
   "devDependencies": {

@@ -25,7 +25,7 @@ test.describe("Banner", () => {
 
     assert({ voiceOver, phrase: "Top" });
     assert({ voiceOver, phrase: "link" });
-    assert({ voiceOver, phrase: "banner", range: 4 });
+    assert({ voiceOver, phrase: "banner" });
   });
 
   test("Navigate forwards into a banner landmark [2]", async ({
@@ -35,6 +35,6 @@ test.describe("Banner", () => {
 
     assert({ voiceOver, phrase: "Top" });
     assert({ voiceOver, phrase: "link" });
-    // assert({ voiceOver, phrase: "banner", range: 4 });
+    // assert({ voiceOver, phrase: "banner" });
   });
 });
