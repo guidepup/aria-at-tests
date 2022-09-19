@@ -23,9 +23,8 @@ test.describe("Banner", () => {
     await voiceOver.next();
     await voiceOver.next();
 
-    expect(voiceOver.spokenPhraseLog().at(-1)).toContain("Top");
-    expect(voiceOver.spokenPhraseLog().at(-1)).toContain("link");
-    expect(voiceOver.spokenPhraseLog().at(-2)).toContain("banner");
+    expect(voiceOver.spokenPhraseLog()).toContain("Top, link");
+    expect(voiceOver.spokenPhraseLog()).toContain("banner");
   });
 
   test("Navigate forwards into a banner landmark [2]", async ({
@@ -33,8 +32,7 @@ test.describe("Banner", () => {
   }) => {
     await voiceOver.perform(voiceOver.keyboard.commands.findNextLink);
 
-    expect(voiceOver.spokenPhraseLog().at(-1)).toContain("Top");
-    expect(voiceOver.spokenPhraseLog().at(-1)).toContain("link");
-    // expect(voiceOver.spokenPhraseLog().at(-2)).toContain("banner");
+    expect(voiceOver.spokenPhraseLog()).toContain("Top, link");
+    // expect(voiceOver.spokenPhraseLog()).toContain("banner");
   });
 });
