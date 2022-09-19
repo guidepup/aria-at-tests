@@ -17,11 +17,8 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 16
-      - run: |
-          "/Library/Application Support/VMware Tools/vmware-resolutionSet" 1440 900
-          sleep 5
       - name: Guidepup Setup
-        uses: guidepup/setup-action@0.3.1
+        uses: guidepup/setup-action@0.3.2
       - run: yarn install --frozen-lockfile
       - run: yarn test
       - uses: actions/upload-artifact@v2
