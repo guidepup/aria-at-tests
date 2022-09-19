@@ -23,7 +23,7 @@ test.describe("Banner", () => {
     await voiceOver.next();
     await voiceOver.next();
 
-    expect(voiceOver.spokenPhraseLog()).toContain("Top, link");
+    expect(voiceOver.spokenPhraseLog()).toContain("Top link");
     expect(voiceOver.spokenPhraseLog()).toContain("banner");
   });
 
@@ -32,7 +32,7 @@ test.describe("Banner", () => {
   }) => {
     await voiceOver.perform(voiceOver.keyboard.commands.findNextLink);
 
-    expect(voiceOver.spokenPhraseLog()).toContain("Top, link");
+    expect(voiceOver.spokenPhraseLog()).toContain("Top link");
     // expect(voiceOver.spokenPhraseLog()).toContain("banner");
   });
 });
