@@ -1,6 +1,6 @@
-import { expect } from "@playwright/test";
 import { voTest as test } from "@guidepup/playwright";
 import { record, setup } from "./setup";
+import { assert } from "./assert";
 
 const testUrl =
   "https://aria-at.netlify.app/tests/banner/reference/2021-10-24_135455/banner.setfocusbeforebanner";
@@ -23,8 +23,9 @@ test.describe("Banner", () => {
     await voiceOver.next();
     await voiceOver.next();
 
-    expect(voiceOver.spokenPhraseLog()).toContain("Top link");
-    expect(voiceOver.spokenPhraseLog()).toContain("banner");
+    assert({ voiceOver, phrase: "Top" });
+    assert({ voiceOver, phrase: "link" });
+    assert({ voiceOver, phrase: "banner", range: 4 });
   });
 
   test("Navigate forwards into a banner landmark [2]", async ({
@@ -32,7 +33,8 @@ test.describe("Banner", () => {
   }) => {
     await voiceOver.perform(voiceOver.keyboard.commands.findNextLink);
 
-    expect(voiceOver.spokenPhraseLog()).toContain("Top link");
-    // expect(voiceOver.spokenPhraseLog()).toContain("banner");
+    assert({ voiceOver, phrase: "Top" });
+    assert({ voiceOver, phrase: "link" });
+    // assert({ voiceOver, phrase: "banner", range: 4 });
   });
 });
