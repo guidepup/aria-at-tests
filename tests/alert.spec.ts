@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { voTest as test } from "@guidepup/playwright";
-import { setup } from "./setup";
+import { record, setup } from "./setup";
 
 const testUrl =
   "https://aria-at.netlify.app/tests/alert/reference/2022-4-8_144013/alert.setfocusonbutton";
@@ -9,7 +9,8 @@ test.describe("Alert", () => {
   let stopRecording;
 
   test.beforeEach(async ({ page, voiceOver }) => {
-    stopRecording = await setup({ page, voiceOver, test, testUrl });
+    stopRecording = await record({ test });
+    await setup({ page, voiceOver, testUrl });
   });
 
   test.afterEach(() => {

@@ -1,23 +1,22 @@
 import { macOSRecord } from "@guidepup/guidepup";
+import { platform, release } from "os";
 import { join } from "path";
-import { delay } from "./delay";
 
-export async function setup({
-  page,
-  test,
-  testUrl,
-  voiceOver,
-}): Promise<() => void> {
-  const stopRecording = macOSRecord(
-    join(
-      "./recordings/",
-      test.info().title.replaceAll(/\s+/g, "_").toLowerCase(),
-      `test_${test.info().retry}.mov`
-    )
-  );
+export function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
+export async function record({ test }): Promise<() => void> {
+  const { retry, title } = test.info();
+  const directoryPath = title.replaceAll(/\s+/g, "_").toLowerCase();
+  const fileName = `test_${platform()}_${release()}_${retry}.mov`;
+  const filePath = join("./recordings/", directoryPath, fileName);
+
+  return macOSRecord(filePath);
+}
+
+export async function setup({ page, testUrl, voiceOver }): Promise<void> {
   await page.goto(testUrl);
-
   await voiceOver.stopInteracting();
   await voiceOver.interact();
 
@@ -27,6 +26,4 @@ export async function setup({
   }
 
   await voiceOver.act();
-
-  return stopRecording;
 }
