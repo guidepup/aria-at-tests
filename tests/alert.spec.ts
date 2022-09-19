@@ -1,4 +1,4 @@
-import { expect } from "@playwright/test";
+import { assert } from "./assert";
 import { voTest as test } from "@guidepup/playwright";
 import { record, setup } from "./setup";
 
@@ -20,21 +20,21 @@ test.describe("Alert", () => {
   test("Trigger an alert [1]", async ({ voiceOver }) => {
     await voiceOver.act();
 
-    expect(await voiceOver.lastSpokenPhrase()).toContain("Hello");
-    // expect(await voiceOver.lastSpokenPhrase()).toContain("alert");
+    assert({ voiceOver, phrase: "Hello" });
+    // assert({ voiceOver, phrase: "alert" });
   });
 
   test("Trigger an alert [2]", async ({ voiceOver }) => {
     await voiceOver.press("Space");
 
-    expect(await voiceOver.lastSpokenPhrase()).toContain("Hello");
-    // expect(await voiceOver.lastSpokenPhrase()).toContain("alert");
+    assert({ voiceOver, phrase: "Hello" });
+    // assert({ voiceOver, phrase: "alert" });
   });
 
   test("Trigger an alert [3]", async ({ voiceOver }) => {
     await voiceOver.press("Enter");
 
-    expect(await voiceOver.lastSpokenPhrase()).toContain("Hello");
-    // expect(await voiceOver.lastSpokenPhrase()).toContain("alert");
+    assert({ voiceOver, phrase: "Hello" });
+    // assert({ voiceOver, phrase: "alert" });
   });
 });

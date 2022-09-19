@@ -17,6 +17,10 @@ export async function record({ test }): Promise<() => void> {
 
 export async function setup({ page, testUrl, voiceOver }): Promise<void> {
   await page.goto(testUrl);
+  await delay(50);
+
+  await voiceOver.stopInteracting();
+  await voiceOver.stopInteracting();
   await voiceOver.stopInteracting();
   await voiceOver.interact();
 
