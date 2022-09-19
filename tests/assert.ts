@@ -2,9 +2,9 @@ import { expect } from "@playwright/test";
 
 export function assert({ voiceOver, phrase }) {
   const spokenPhraseLog = voiceOver.spokenPhraseLog();
-  const startIndex = spokenPhraseLog.findLastIndex((spokenPhrase) =>
-    spokenPhrase.includes("Run Test Setup")
-  );
+  const startIndex = spokenPhraseLog.length - 1 - spokenPhraseLog
+    .reverse()
+    .findIndex((spokenPhrase) => spokenPhrase.includes("Run Test Setup"));
   const testSpokenPhraseLog = spokenPhraseLog.slice(startIndex);
 
   const found = !!testSpokenPhraseLog.find((spokenPhrase) =>
