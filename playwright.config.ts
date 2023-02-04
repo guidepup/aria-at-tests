@@ -13,7 +13,7 @@ const config: PlaywrightTestConfig = {
       use: { ...devices["Desktop Safari"], headless: false },
     },
   ],
-  reporter: process.env.CI ? "github" : "list",
+  reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
 };
 
 export default config;

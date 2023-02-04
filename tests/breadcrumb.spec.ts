@@ -10,7 +10,11 @@ test.describe("Breadcrumb", () => {
 
     test.beforeEach(async ({ page, voiceOver }) => {
       stopRecording = await record({ test });
-      await setup({ page, voiceOver, testUrl });
+      await setup({ page, testUrl });
+      await page.locator("button", { hasText: "Run Test Setup" }).focus();
+      await voiceOver.perform(
+        voiceOver.keyboardCommands.performDefaultActionForItem
+      );
     });
 
     test.afterEach(() => {
@@ -46,7 +50,11 @@ test.describe("Breadcrumb", () => {
 
     test.beforeEach(async ({ page, voiceOver }) => {
       stopRecording = await record({ test });
-      await setup({ page, voiceOver, testUrl });
+      await setup({ page, testUrl });
+      await page.locator("button", { hasText: "Run Test Setup" }).focus();
+      await voiceOver.perform(
+        voiceOver.keyboardCommands.performDefaultActionForItem
+      );
     });
 
     test.afterEach(() => {
@@ -88,7 +96,11 @@ test.describe("Breadcrumb", () => {
 
     test.beforeEach(async ({ page, voiceOver }) => {
       stopRecording = await record({ test });
-      await setup({ page, voiceOver, testUrl });
+      await setup({ page, testUrl });
+      await page.locator("button", { hasText: "Run Test Setup" }).focus();
+      await voiceOver.perform(
+        voiceOver.keyboardCommands.performDefaultActionForItem
+      );
     });
 
     test.afterEach(() => {
@@ -122,7 +134,11 @@ test.describe("Breadcrumb", () => {
 
     test.beforeEach(async ({ page, voiceOver }) => {
       stopRecording = await record({ test });
-      await setup({ page, voiceOver, testUrl });
+      await setup({ page, testUrl });
+      await page.locator("button", { hasText: "Run Test Setup" }).focus();
+      await voiceOver.perform(
+        voiceOver.keyboardCommands.performDefaultActionForItem
+      );
     });
 
     test.afterEach(() => {
@@ -158,7 +174,11 @@ test.describe("Breadcrumb", () => {
 
     test.beforeEach(async ({ page, voiceOver }) => {
       stopRecording = await record({ test });
-      await setup({ page, voiceOver, testUrl });
+      await setup({ page, testUrl });
+      await page.locator("button", { hasText: "Run Test Setup" }).focus();
+      await voiceOver.perform(
+        voiceOver.keyboardCommands.performDefaultActionForItem
+      );
     });
 
     test.afterEach(() => {

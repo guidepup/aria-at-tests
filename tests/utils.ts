@@ -24,16 +24,13 @@ export async function record({
 export async function setup({
   page,
   testUrl,
-  voiceOver,
 }: {
   page: Page;
   testUrl: string;
-  voiceOver: VoiceOver;
 }): Promise<void> {
   await page.goto(testUrl, { waitUntil: "load" });
   await delay(1000);
-  await page.locator("button", { hasText: "Run Test Setup" }).focus();
-  await voiceOver.perform(voiceOver.keyboardCommands.performDefaultActionForItem);
+  await page.locator("body").focus();
 }
 
 export async function assert({
@@ -46,15 +43,13 @@ export async function assert({
   const spokenPhraseLog = await voiceOver.spokenPhraseLog();
 
   const startIndexFromEnd = [...spokenPhraseLog]
-      .reverse()
-      .findIndex((spokenPhrase) => spokenPhrase.includes("Run Test Setup"))
+    .reverse()
+    .findIndex((spokenPhrase) => spokenPhrase.includes("Run Test Setup"));
 
   const startIndex =
     startIndexFromEnd === -1
       ? 0
       : spokenPhraseLog.length - 1 - startIndexFromEnd;
-    ;
-
   const testSpokenPhraseLog = spokenPhraseLog.slice(startIndex);
 
   const found = !!testSpokenPhraseLog.find((spokenPhrase) =>
