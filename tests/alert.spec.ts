@@ -1,6 +1,5 @@
-import { assert } from "./assert";
 import { voTest as test } from "@guidepup/playwright";
-import { record, setup } from "./setup";
+import { assert, record, setup } from "./utils";
 
 const testUrl =
   "https://aria-at.netlify.app/tests/alert/reference/2022-4-8_144013/alert.setfocusonbutton";
@@ -17,24 +16,31 @@ test.describe("Alert", () => {
     stopRecording();
   });
 
-  test("Trigger an alert [1]", async ({ voiceOver }) => {
-    await voiceOver.act();
+  ["alert", "Hello"].forEach((phrase) => {
+    test(`Trigger an alert | Control+Option+Space | Phrase: ${phrase}`, async ({
+      voiceOver,
+    }) => {
+      await voiceOver.perform(
+        voiceOver.keyboardCommands.performDefaultActionForItem
+      );
 
-    assert({ voiceOver, phrase: "Hello" });
-    // assert({ voiceOver, phrase: "alert" });
-  });
+      assert({ voiceOver, phrase });
+    });
 
-  test("Trigger an alert [2]", async ({ voiceOver }) => {
-    await voiceOver.press("Space");
+    test(`Trigger an alert | Space | Phrase: ${phrase}`, async ({
+      voiceOver,
+    }) => {
+      await voiceOver.press("Space");
 
-    assert({ voiceOver, phrase: "Hello" });
-    // assert({ voiceOver, phrase: "alert" });
-  });
+      assert({ voiceOver, phrase });
+    });
 
-  test("Trigger an alert [3]", async ({ voiceOver }) => {
-    await voiceOver.press("Enter");
+    test(`Trigger an alert | Enter | Phrase: ${phrase}`, async ({
+      voiceOver,
+    }) => {
+      await voiceOver.press("Enter");
 
-    assert({ voiceOver, phrase: "Hello" });
-    // assert({ voiceOver, phrase: "alert" });
+      assert({ voiceOver, phrase });
+    });
   });
 });

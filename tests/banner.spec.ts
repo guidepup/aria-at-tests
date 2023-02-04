@@ -1,6 +1,5 @@
 import { voTest as test } from "@guidepup/playwright";
-import { record, setup } from "./setup";
-import { assert } from "./assert";
+import { assert, record, setup } from "./utils";
 
 const testUrl =
   "https://aria-at.netlify.app/tests/banner/reference/2021-10-24_135455/banner.setfocusbeforebanner";
@@ -17,24 +16,22 @@ test.describe("Banner", () => {
     stopRecording();
   });
 
-  test("Navigate forwards into a banner landmark [1]", async ({
-    voiceOver,
-  }) => {
-    await voiceOver.next();
-    await voiceOver.next();
+  ["banner", "link", "Top"].forEach((phrase) => {
+    test(`Navigate forwards into a banner landmark | Control+Option+Right, then Control+Option+Right | Phrase: ${phrase}`, async ({
+      voiceOver,
+    }) => {
+      await voiceOver.next();
+      await voiceOver.next();
 
-    assert({ voiceOver, phrase: "Top" });
-    assert({ voiceOver, phrase: "link" });
-    assert({ voiceOver, phrase: "banner" });
-  });
+      assert({ voiceOver, phrase });
+    });
 
-  test("Navigate forwards into a banner landmark [2]", async ({
-    voiceOver,
-  }) => {
-    await voiceOver.perform(voiceOver.keyboard.commands.findNextLink);
+    test(`Navigate forwards into a banner landmark | Control+Option+Command+L | Phrase ${phrase}`, async ({
+      voiceOver,
+    }) => {
+      await voiceOver.perform(voiceOver.keyboardCommands.findNextLink);
 
-    assert({ voiceOver, phrase: "Top" });
-    assert({ voiceOver, phrase: "link" });
-    // assert({ voiceOver, phrase: "banner" });
+      assert({ voiceOver, phrase });
+    });
   });
 });

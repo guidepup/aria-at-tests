@@ -6,13 +6,14 @@ const config: PlaywrightTestConfig = {
   reportSlowTests: null,
   workers: 1,
   timeout: 2 * 60 * 1000,
-  retries: 2,
+  retries: 1,
   projects: [
     {
       name: "webkit",
       use: { ...devices["Desktop Safari"], headless: false },
     },
   ],
+  reporter: process.env.CI ? "github" : "list",
 };
 
 export default config;
