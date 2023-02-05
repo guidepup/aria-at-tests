@@ -111,8 +111,8 @@ jobs:
     needs: test-voiceover
     runs-on: ubuntu-latest
     environment:
-      name: ${{ inputs.environment }}-report
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: ${{ github.head_ref || github.ref_name }}-report
+      url: ${{ steps.deploy-pages.outputs.page_url }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -142,6 +142,7 @@ jobs:
           path: ./html-report
 
       - name: GitHub Pages Deployment
+        id: deploy-pages
         uses: actions/deploy-pages@v1
 
       - name: PR Comment
@@ -149,7 +150,7 @@ jobs:
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
-            Playwright Test Report: ${{steps.pages-deploy.outputs.page_url}}
+            Playwright Test Report: ${{steps.deploy-pages.outputs.page_url}}
           comment_tag: "Playwright Test Report"
           pr_number: ${{ inputs.pr_number }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
