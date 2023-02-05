@@ -14,7 +14,10 @@ export async function record({
   test: typeof voTest;
 }): Promise<() => void> {
   const { retry, title } = test.info();
-  const directoryPath = title.replaceAll(/\s+/g, "_").toLowerCase();
+  const directoryPath = title
+    .replaceAll(/\s+/g, "_")
+    .replaceAll(/[":<>|*?]/g, "_")
+    .toLowerCase();
   const fileName = `test_${platform()}_${release()}_${retry}.mov`;
   const filePath = join("./recordings/", directoryPath, fileName);
 
