@@ -9,8 +9,7 @@ const reportPathsToMerge = readdirSync(
   }
 )
   .filter(
-    ({ name, isDirectory }) =>
-      isDirectory() && name.startsWith("playwright-report")
+    (item) => item.isDirectory() && item.name.startsWith("playwright-report")
   )
   .map(({ name }) => join(process.cwd(), "playwright-report", name));
 

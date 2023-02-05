@@ -41,13 +41,13 @@ jobs:
         run: yarn browsers
 
   test-voiceover:
-    name: Playwright VoiceOver Tests (${{ matrix.shard }}/${{ strategy.job-total }})
+    name: Playwright VoiceOver Tests (${{ matrix.spec }})
     needs: install
     runs-on: macos-12
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2]
+        spec: [alert, banner, breadcrumb, checkbox]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -72,14 +72,14 @@ jobs:
           key: playwright-${{ hashFiles('yarn.lock') }}
 
       - name: Run Tests
-        run: yarn test --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+        run: yarn test ./tests/${{ matrix.spec }}.spec.ts
         continue-on-error: true
 
       - uses: actions/upload-artifact@v3
         if: always()
         continue-on-error: true
         with:
-          name: artifacts-${{ matrix.shard }}
+          name: artifacts-${{ matrix.spec }}
           path: |
             ./test-results
             ./recordings
@@ -88,7 +88,7 @@ jobs:
         if: always()
         continue-on-error: true
         with:
-          name: playwright-report-${{ matrix.shard }}
+          name: playwright-report-${{ matrix.spec }}
           path: |
             ./playwright-report
 
