@@ -8,27 +8,88 @@ on:
 
 jobs:
   test-voiceover:
+    name: Playwright VoiceOver Tests
     runs-on: macos-12
     strategy:
       fail-fast: false
       matrix:
-        spec: [alert, banner, breadcrumb, checkbox]
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+
       - name: Guidepup Setup
         uses: guidepup/setup-action@0.11.2
-      - run: yarn install --frozen-lockfile
-      - run: yarn test ./tests/${{ matrix.spec }}.spec.ts
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run Tests
+        run: yarn test --shard=${{ matrix.shard }}/${{ strategy.job-total }}
         continue-on-error: true
+
       - uses: actions/upload-artifact@v3
         if: always()
         continue-on-error: true
         with:
-          name: artifacts
+          name: artifacts-${{ matrix.shard }}
           path: |
-            **/test-results/**/*
-            **/playwright-report/**/*
-            **/recordings/**/*
+            ./test-results
+            ./recordings
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        continue-on-error: true
+        with:
+          name: playwright-report-${{ matrix.shard }}
+          path: |
+            ./playwright-report
+
+  publish-test-report:
+    name: Publish to GitHub Pages
+    if: always()
+    needs: playwright_test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - uses: actions/download-artifact@v3
+        with:
+          path: ./playwright-report
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Create Test Report
+        run: yarn test:report
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./html-report
+  
+      - name: GitHub Pages Deployment
+        uses: actions/deploy-pages@v1
+
+      - name: PR Comment
+        if: ${{ always() && github.event_name == 'pull_request' }}
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            Playwright Test Report: ${{steps.pages-deploy.outputs.page_url}}
+          comment_includes: "Playwright Test Report"
+          pr_number: ${{ inputs.pr_number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
