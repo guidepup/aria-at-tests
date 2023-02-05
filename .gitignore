@@ -108,4 +108,4 @@ lib
 test-results
 recordings
 playwright-report
-test-report
+html-report

@@ -48,7 +48,7 @@ jobs:
           path: |
             ./playwright-report
 
-  publish-test-report:
+  publish-html-report:
     name: Publish to GitHub Pages
     if: always()
     needs: test-voiceover
