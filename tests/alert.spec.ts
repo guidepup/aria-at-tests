@@ -1,11 +1,13 @@
 import { voTest as test } from "@guidepup/playwright";
 import { assert, record, setup } from "./utils";
 
-const testUrl =
-  "https://aria-at.netlify.app/tests/alert/reference/2022-4-8_144013/alert.setfocusonbutton";
-
 test.describe("Alert", () => {
   let stopRecording;
+
+  const testUrl =
+    "https://aria-at.netlify.app/tests/alert/reference/2022-4-8_144013/alert.setfocusonbutton";
+
+  const expectedPhrases = ["alert", "Hello"];
 
   test.beforeEach(async ({ page, voiceOver }) => {
     stopRecording = await record({ test });
@@ -20,31 +22,43 @@ test.describe("Alert", () => {
     stopRecording();
   });
 
-  ["alert", "Hello"].forEach((phrase) => {
-    test(`Trigger an alert | Control+Option+Space | Phrase: ${phrase}`, async ({
-      voiceOver,
-    }) => {
+  test.describe(`Trigger an alert | Control+Option+Space`, () => {
+    test.beforeAll(async ({ voiceOver }) => {
       await voiceOver.perform(
         voiceOver.keyboardCommands.performDefaultActionForItem
       );
-
-      assert({ voiceOver, phrase });
     });
 
-    test(`Trigger an alert | Space | Phrase: ${phrase}`, async ({
-      voiceOver,
-    }) => {
+    expectedPhrases.forEach((phrase) => {
+      test(`Trigger an alert | Control+Option+Space | Phrase: ${phrase}`, ({
+        voiceOver,
+      }) => {
+        assert({ voiceOver, phrase });
+      });
+    });
+  });
+
+  test.describe(`Trigger an alert | Space`, () => {
+    test.beforeAll(async ({ voiceOver }) => {
       await voiceOver.press("Space");
-
-      assert({ voiceOver, phrase });
     });
 
-    test(`Trigger an alert | Enter | Phrase: ${phrase}`, async ({
-      voiceOver,
-    }) => {
-      await voiceOver.press("Enter");
+    expectedPhrases.forEach((phrase) => {
+      test(`Trigger an alert | Space | Phrase: ${phrase}`, ({ voiceOver }) => {
+        assert({ voiceOver, phrase });
+      });
+    });
+  });
 
-      assert({ voiceOver, phrase });
+  test.describe(`Trigger an alert | Enter`, () => {
+    test.beforeAll(async ({ voiceOver }) => {
+      await voiceOver.press("Enter");
+    });
+
+    ["alert", "Hello"].forEach((phrase) => {
+      test(`Trigger an alert | Enter | Phrase: ${phrase}`, ({ voiceOver }) => {
+        assert({ voiceOver, phrase });
+      });
     });
   });
 });

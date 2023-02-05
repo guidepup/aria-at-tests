@@ -1,11 +1,13 @@
 import { voTest as test } from "@guidepup/playwright";
 import { assert, record, setup } from "./utils";
 
-const testUrl =
-  "https://aria-at.netlify.app/tests/banner/reference/2021-10-24_135455/banner.setfocusbeforebanner";
-
 test.describe("Banner", () => {
   let stopRecording;
+
+  const testUrl =
+    "https://aria-at.netlify.app/tests/banner/reference/2021-10-24_135455/banner.setfocusbeforebanner";
+
+  const expectedPhrases = ["banner", "link", "Top"];
 
   test.beforeEach(async ({ page, voiceOver }) => {
     stopRecording = await record({ test });
@@ -20,22 +22,32 @@ test.describe("Banner", () => {
     stopRecording();
   });
 
-  ["banner", "link", "Top"].forEach((phrase) => {
-    test(`Navigate forwards into a banner landmark | Control+Option+Right, then Control+Option+Right | Phrase: ${phrase}`, async ({
-      voiceOver,
-    }) => {
+  test.describe("Navigate forwards into a banner landmark | Control+Option+Right, then Control+Option+Right", () => {
+    test.beforeAll(async ({ voiceOver }) => {
       await voiceOver.next();
       await voiceOver.next();
-
-      assert({ voiceOver, phrase });
     });
 
-    test(`Navigate forwards into a banner landmark | Control+Option+Command+L | Phrase ${phrase}`, async ({
-      voiceOver,
-    }) => {
-      await voiceOver.perform(voiceOver.keyboardCommands.findNextLink);
+    expectedPhrases.forEach((phrase) => {
+      test(`Navigate forwards into a banner landmark | Control+Option+Right, then Control+Option+Right | Phrase: ${phrase}`, async ({
+        voiceOver,
+      }) => {
+        assert({ voiceOver, phrase });
+      });
+    });
+  });
 
-      assert({ voiceOver, phrase });
+  test.describe("Navigate forwards into a banner landmark | Control+Option+Command+L", () => {
+    test.beforeAll(async ({ voiceOver }) => {
+      await voiceOver.perform(voiceOver.keyboardCommands.findNextLink);
+    });
+
+    expectedPhrases.forEach((phrase) => {
+      test(`Navigate forwards into a banner landmark | Control+Option+Command+L | Phrase ${phrase}`, async ({
+        voiceOver,
+      }) => {
+        assert({ voiceOver, phrase });
+      });
     });
   });
 });

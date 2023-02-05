@@ -9,6 +9,8 @@ test.describe("Checkbox", () => {
     const testUrl =
       "https://aria-at.netlify.app/tests/checkbox/reference/2020-11-23_175030/checkbox-1/checkbox-1.html";
 
+    const expectedPhrases = ["checkbox", "Lettuce", "unticked"];
+
     test.beforeEach(async ({ page, voiceOver }) => {
       stopRecording = await record({ test });
       await setup({ page, testUrl });
@@ -19,38 +21,56 @@ test.describe("Checkbox", () => {
       stopRecording();
     });
 
-    ["checkbox", "Lettuce", "unticked"].forEach((phrase) => {
-      test(`Navigate to an unchecked checkbox | Tab / Shift+Tab | Phrase: ${phrase}`, async ({
-        voiceOver,
-      }) => {
+    test.describe(`Navigate to an unchecked checkbox | Tab / Shift+Tab`, () => {
+      test.beforeAll(async ({ voiceOver }) => {
         await voiceOver.perform({ keyCode: MacOSKeyCodes.Tab });
-
-        assert({ voiceOver, phrase });
       });
 
-      test(`Navigate to an unchecked checkbox | Control+Option+Right / Ctrl+Option+Left | Phrase: ${phrase}`, async ({
-        voiceOver,
-      }) => {
-        await voiceOver.next();
-        await voiceOver.next();
-        await voiceOver.next();
+      expectedPhrases.forEach((phrase) => {
+        test(`Navigate to an unchecked checkbox | Tab / Shift+Tab | Phrase: ${phrase}`, ({
+          voiceOver,
+        }) => {
+          assert({ voiceOver, phrase });
+        });
+      });
+    });
 
-        assert({ voiceOver, phrase });
+    test.describe(`Navigate to an unchecked checkbox | Control+Option+Right / Ctrl+Option+Left`, () => {
+      test.beforeAll(async ({ voiceOver }) => {
+        await voiceOver.next();
+        await voiceOver.next();
+        await voiceOver.next();
       });
 
-      test(`Navigate to an unchecked checkbox | Control+Option+Command+J / Shift+Control+Option+Command+J | Phrase: ${phrase}`, async ({
-        voiceOver,
-      }) => {
+      expectedPhrases.forEach((phrase) => {
+        test(`Navigate to an unchecked checkbox | Control+Option+Right / Ctrl+Option+Left | Phrase: ${phrase}`, ({
+          voiceOver,
+        }) => {
+          assert({ voiceOver, phrase });
+        });
+      });
+    });
+
+    test.describe(`Navigate to an unchecked checkbox | Control+Option+Command+J / Shift+Control+Option+Command+J`, () => {
+      test.beforeAll(async ({ voiceOver }) => {
         await voiceOver.perform(voiceOver.keyboardCommands.findNextControl);
+      });
 
-        assert({ voiceOver, phrase });
+      expectedPhrases.forEach((phrase) => {
+        test(`Navigate to an unchecked checkbox | Control+Option+Command+J / Shift+Control+Option+Command+J | Phrase: ${phrase}`, ({
+          voiceOver,
+        }) => {
+          assert({ voiceOver, phrase });
+        });
       });
     });
   });
 
-  test.describe("Navigate to an unchecked checkbox", () => {
+  test.describe("Navigate to an checked checkbox", () => {
     const testUrl =
       "https://aria-at.netlify.app/tests/checkbox/reference/2020-11-23_175030/checkbox-1/checkbox-1.checkfirstcheckbox";
+
+    const expectedPhrases = ["checkbox", "Lettuce", "ticked"];
 
     test.beforeEach(async ({ page, voiceOver }) => {
       stopRecording = await record({ test });
@@ -65,31 +85,47 @@ test.describe("Checkbox", () => {
       stopRecording();
     });
 
-    ["checkbox", "Lettuce", "ticked"].forEach((phrase) => {
-      test(`Navigate to a checked checkbox | Tab / Shift+Tab | Phrase: ${phrase}`, async ({
-        voiceOver,
-      }) => {
+    test.describe(`Navigate to a checked checkbox | Tab / Shift+Tab`, () => {
+      test.beforeAll(async ({ voiceOver }) => {
         await voiceOver.perform({ keyCode: MacOSKeyCodes.Tab });
-
-        assert({ voiceOver, phrase });
       });
 
-      test(`Navigate to a checked checkbox | Control+Option+Right / Ctrl+Option+Left | Phrase: ${phrase}`, async ({
-        voiceOver,
-      }) => {
-        await voiceOver.next();
-        await voiceOver.next();
-        await voiceOver.next();
+      expectedPhrases.forEach((phrase) => {
+        test(`Navigate to a checked checkbox | Tab / Shift+Tab | Phrase: ${phrase}`, ({
+          voiceOver,
+        }) => {
+          assert({ voiceOver, phrase });
+        });
+      });
+    });
 
-        assert({ voiceOver, phrase });
+    test.describe(`Navigate to a checked checkbox | Control+Option+Right / Ctrl+Option+Left`, () => {
+      test.beforeAll(async ({ voiceOver }) => {
+        await voiceOver.next();
+        await voiceOver.next();
+        await voiceOver.next();
       });
 
-      test(`Navigate to a checked checkbox | Control+Option+Command+J / Shift+Control+Option+Command+J | Phrase: ${phrase}`, async ({
-        voiceOver,
-      }) => {
+      expectedPhrases.forEach((phrase) => {
+        test(`Navigate to a checked checkbox | Control+Option+Right / Ctrl+Option+Left | Phrase: ${phrase}`, ({
+          voiceOver,
+        }) => {
+          assert({ voiceOver, phrase });
+        });
+      });
+    });
+
+    test.describe(`Navigate to a checked checkbox | Control+Option+Command+J / Shift+Control+Option+Command+J`, () => {
+      test.beforeAll(async ({ voiceOver }) => {
         await voiceOver.perform(voiceOver.keyboardCommands.findNextControl);
+      });
 
-        assert({ voiceOver, phrase });
+      expectedPhrases.forEach((phrase) => {
+        test(`Navigate to a checked checkbox | Control+Option+Command+J / Shift+Control+Option+Command+J | Phrase: ${phrase}`, ({
+          voiceOver,
+        }) => {
+          assert({ voiceOver, phrase });
+        });
       });
     });
   });
