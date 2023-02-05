@@ -150,6 +150,6 @@ jobs:
         with:
           message: |
             Playwright Test Report: ${{steps.pages-deploy.outputs.page_url}}
-          comment_includes: "Playwright Test Report"
+          comment_tag: "Playwright Test Report"
           pr_number: ${{ inputs.pr_number }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
