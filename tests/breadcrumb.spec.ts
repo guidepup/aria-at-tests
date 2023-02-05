@@ -185,7 +185,7 @@ test.describe("Breadcrumb", () => {
       stopRecording();
     });
 
-    ["navigation", "list", "link", "Navigate forward from here"].forEach(
+    ["navigation", "list", "link", "Navigate forwards from here"].forEach(
       (phrase) => {
         test(`Navigate backwards out of the Breadcrumb navigation landmark | Ctrl+Option+Left, then Ctrl+Option+Left, then Ctrl+Option+Left | Phrase: ${phrase}`, async ({
           voiceOver,
