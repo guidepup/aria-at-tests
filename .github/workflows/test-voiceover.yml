@@ -7,8 +7,42 @@ on:
     branches: [main]
 
 jobs:
+  install:
+    name: Install
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        id: cache-node-modules
+        with:
+          path: |
+            node_modules
+          key: modules-${{ hashFiles('yarn.lock') }}
+
+      - name: Cache Playwright binaries
+        uses: actions/cache@v3
+        id: cache-playwright
+        with:
+          path: |
+            ~/Library/Caches/ms-playwright
+          key: playwright-${{ hashFiles('yarn.lock') }}
+
+      - name: Install Dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
+ 
+      - name: Install Playwright Browsers
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
+        run: yarn browsers
+
   test-voiceover:
-    name: Playwright VoiceOver Tests
+    name: Playwright VoiceOver Tests (${{ matrix.shard }}/${{ strategy.job-total }})
+    needs: install
     runs-on: macos-12
     strategy:
       fail-fast: false
@@ -16,7 +50,6 @@ jobs:
         shard: [1, 2]
     steps:
       - uses: actions/checkout@v3
-
       - uses: actions/setup-node@v3
         with:
           node-version: 18
@@ -24,8 +57,19 @@ jobs:
       - name: Guidepup Setup
         uses: guidepup/setup-action@0.11.2
 
-      - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: modules-${{ hashFiles('yarn.lock') }}
+ 
+      - name: Cache Playwright
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/Library/Caches/ms-playwright
+          key: playwright-${{ hashFiles('yarn.lock') }}
 
       - name: Run Tests
         run: yarn test --shard=${{ matrix.shard }}/${{ strategy.job-total }}
@@ -58,17 +102,20 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v3
-
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      
+
       - uses: actions/download-artifact@v3
         with:
           path: ./playwright-report
 
-      - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: modules-${{ hashFiles('yarn.lock') }}
 
       - name: Create Test Report
         run: yarn test:report
@@ -80,7 +127,7 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           path: ./html-report
-  
+
       - name: GitHub Pages Deployment
         uses: actions/deploy-pages@v1
 

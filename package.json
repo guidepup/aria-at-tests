@@ -25,7 +25,7 @@
     "ci": "yarn lint",
     "lint": "eslint . --ext .ts",
     "lint:fix": "yarn lint --fix",
-    "pretest": "npx playwright install webkit",
+    "browsers": "npx playwright install webkit",
     "test": "playwright test ./tests/*.spec.ts",
     "test:report": "ts-node report.ts"
   },

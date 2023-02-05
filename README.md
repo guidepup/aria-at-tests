@@ -18,5 +18,6 @@ Then install the project dependencies and run the Playwright suite against the A
 
 ```console
 yarn install --frozen-lockfile
+yarn browsers
 yarn test
 ```

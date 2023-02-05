@@ -8,7 +8,10 @@ const reportPathsToMerge = readdirSync(
     withFileTypes: true,
   }
 )
-  .filter((item) => item.isDirectory())
+  .filter(
+    ({ name, isDirectory }) =>
+      isDirectory() && name.startsWith("playwright-report")
+  )
   .map(({ name }) => join(process.cwd(), "playwright-report", name));
 
 mergeHTMLReports(reportPathsToMerge, {
