@@ -51,10 +51,10 @@ jobs:
   publish-test-report:
     name: Publish to GitHub Pages
     if: always()
-    needs: playwright_test
+    needs: test-voiceover
     runs-on: ubuntu-latest
     environment:
-      name: github-pages
+      name: ${{ inputs.environment }}-report
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v3
