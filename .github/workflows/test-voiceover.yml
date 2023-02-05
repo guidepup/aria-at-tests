@@ -10,7 +10,7 @@ jobs:
   test-voiceover:
     runs-on: macos-12
     strategy:
-      fast-fail: false
+      fail-fast: false
       matrix:
         spec: [alert, banner, breadcrumb, checkbox]
     steps:
