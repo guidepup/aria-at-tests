@@ -23,7 +23,7 @@ test.describe("Banner", () => {
   });
 
   test.describe("Navigate forwards into a banner landmark | Control+Option+Right, then Control+Option+Right", () => {
-    test.beforeAll(async ({ voiceOver }) => {
+    test.beforeEach(async ({ voiceOver }) => {
       await voiceOver.next();
       await voiceOver.next();
     });
@@ -38,7 +38,7 @@ test.describe("Banner", () => {
   });
 
   test.describe("Navigate forwards into a banner landmark | Control+Option+Command+L", () => {
-    test.beforeAll(async ({ voiceOver }) => {
+    test.beforeEach(async ({ voiceOver }) => {
       await voiceOver.perform(voiceOver.keyboardCommands.findNextLink);
     });
 

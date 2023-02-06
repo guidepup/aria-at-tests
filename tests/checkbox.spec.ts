@@ -22,7 +22,7 @@ test.describe("Checkbox", () => {
     });
 
     test.describe(`Navigate to an unchecked checkbox | Tab / Shift+Tab`, () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.perform({ keyCode: MacOSKeyCodes.Tab });
       });
 
@@ -36,7 +36,7 @@ test.describe("Checkbox", () => {
     });
 
     test.describe(`Navigate to an unchecked checkbox | Control+Option+Right / Ctrl+Option+Left`, () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.next();
         await voiceOver.next();
         await voiceOver.next();
@@ -52,7 +52,7 @@ test.describe("Checkbox", () => {
     });
 
     test.describe(`Navigate to an unchecked checkbox | Control+Option+Command+J / Shift+Control+Option+Command+J`, () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.perform(voiceOver.keyboardCommands.findNextControl);
       });
 
@@ -86,7 +86,7 @@ test.describe("Checkbox", () => {
     });
 
     test.describe(`Navigate to a checked checkbox | Tab / Shift+Tab`, () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.perform({ keyCode: MacOSKeyCodes.Tab });
       });
 
@@ -100,7 +100,7 @@ test.describe("Checkbox", () => {
     });
 
     test.describe(`Navigate to a checked checkbox | Control+Option+Right / Ctrl+Option+Left`, () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.next();
         await voiceOver.next();
         await voiceOver.next();
@@ -116,7 +116,7 @@ test.describe("Checkbox", () => {
     });
 
     test.describe(`Navigate to a checked checkbox | Control+Option+Command+J / Shift+Control+Option+Command+J`, () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.perform(voiceOver.keyboardCommands.findNextControl);
       });
 

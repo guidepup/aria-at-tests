@@ -30,7 +30,7 @@ test.describe("Breadcrumb", () => {
     });
 
     test.describe("Navigate to the first breadcrumb link | Control+Option+Right, then Control+Option+Right", () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.next();
         await voiceOver.next();
         await voiceOver.next();
@@ -46,7 +46,7 @@ test.describe("Breadcrumb", () => {
     });
 
     test.describe("Navigate to the first breadcrumb link | Control+Option+Command+L", () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.perform(voiceOver.keyboardCommands.findNextLink);
       });
 
@@ -88,7 +88,7 @@ test.describe("Breadcrumb", () => {
     });
 
     test.describe("Navigate to the last breadcrumb link | Ctrl+Option+Left, then Ctrl+Option+Left, then Ctrl+Option+Left", () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.previous();
         await voiceOver.previous();
         await voiceOver.previous();
@@ -104,7 +104,7 @@ test.describe("Breadcrumb", () => {
     });
 
     test.describe("Navigate to the last breadcrumb link | Shift+Control+Option+Command+L", () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.perform(voiceOver.keyboardCommands.findPreviousLink);
       });
 
@@ -138,7 +138,7 @@ test.describe("Breadcrumb", () => {
     });
 
     test.describe("Read information about a breadcrumb link | Control+Option+F3", () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.perform(voiceOver.keyboardCommands.describeItem);
       });
 
@@ -152,7 +152,7 @@ test.describe("Breadcrumb", () => {
     });
 
     test.describe("Read information about a breadcrumb link | Control+Option+F4", () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.perform(
           voiceOver.keyboardCommands.describeItemWithKeyboardFocus
         );
@@ -193,7 +193,7 @@ test.describe("Breadcrumb", () => {
     });
 
     test.describe("Navigate forwards out of the Breadcrumb navigation landmark | Control+Option+Right, then Control+Option+Right, then Control+Option+Right", () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.next();
         await voiceOver.next();
         await voiceOver.next();
@@ -209,7 +209,7 @@ test.describe("Breadcrumb", () => {
     });
 
     test.describe("Navigate forwards out of the Breadcrumb navigation landmark | Control+Option+Command+L", () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.perform(voiceOver.keyboardCommands.findNextLink);
       });
 
@@ -248,7 +248,7 @@ test.describe("Breadcrumb", () => {
     });
 
     test.describe("Navigate backwards out of the Breadcrumb navigation landmark | Ctrl+Option+Left, then Ctrl+Option+Left, then Ctrl+Option+Left", () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.previous();
         await voiceOver.previous();
         await voiceOver.previous();
@@ -264,7 +264,7 @@ test.describe("Breadcrumb", () => {
     });
 
     test.describe("Navigate backwards out of the Breadcrumb navigation landmark | Shift+Control+Option+Command+L", () => {
-      test.beforeAll(async ({ voiceOver }) => {
+      test.beforeEach(async ({ voiceOver }) => {
         await voiceOver.perform(voiceOver.keyboardCommands.findPreviousLink);
       });
 

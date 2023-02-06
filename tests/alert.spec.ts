@@ -23,7 +23,7 @@ test.describe("Alert", () => {
   });
 
   test.describe(`Trigger an alert | Control+Option+Space`, () => {
-    test.beforeAll(async ({ voiceOver }) => {
+    test.beforeEach(async ({ voiceOver }) => {
       await voiceOver.perform(
         voiceOver.keyboardCommands.performDefaultActionForItem
       );
@@ -39,7 +39,7 @@ test.describe("Alert", () => {
   });
 
   test.describe(`Trigger an alert | Space`, () => {
-    test.beforeAll(async ({ voiceOver }) => {
+    test.beforeEach(async ({ voiceOver }) => {
       await voiceOver.press("Space");
     });
 
@@ -51,7 +51,7 @@ test.describe("Alert", () => {
   });
 
   test.describe(`Trigger an alert | Enter`, () => {
-    test.beforeAll(async ({ voiceOver }) => {
+    test.beforeEach(async ({ voiceOver }) => {
       await voiceOver.press("Enter");
     });
 
