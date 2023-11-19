@@ -9,7 +9,20 @@ import { assert } from "./assert";
 const toTitleCase = (key: string) =>
   key.charAt(0).toUpperCase() + key.substring(1).toLowerCase();
 
-const mapCommand = (command) => {
+const mapCommand = (
+  command
+):
+  | { error: true; voiceOverCommand?: undefined; mappedCommand?: undefined }
+  | {
+      error?: undefined;
+      voiceOverCommand: true;
+      mappedCommand: { keyCode: KeyCodes[]; modifiers: Modifiers[] };
+    }
+  | {
+      error?: undefined;
+      voiceOverCommand: false;
+      mappedCommand: { keyCode: string[]; modifiers: string[] };
+    } => {
   if (/\//.test(command)) {
     return { error: true };
   }
@@ -30,26 +43,58 @@ const mapCommand = (command) => {
     // PAGE_DOWN and PAGE_UP are the only commands that have the extra _ inside a key
     .replaceAll("PAGE_DOWN", "PageDown")
     .replaceAll("PAGE_UP", "PageUp")
-    .replace("CTRL", "Control")
-    .replace("OPT", "Option")
-    .replace("CMD", "Command")
+    .replaceAll("CTRL", "Control")
+    .replaceAll("OPT", "Option")
+    .replaceAll("CMD", "Command")
     .split("_")
-    .map((key) => toTitleCase(key.trim()));
+    .map((key) =>
+      toTitleCase(key.trim())
+        // TODO: handle this better
+        .replaceAll("Pagedown", "PageDown")
+        .replaceAll("Pageup", "PageUp")
+    );
 
-  const keyCodes: KeyCodes[] = [];
-  const modifiers: Modifiers[] = [];
+  const isVoiceOverCommand =
+    keys.includes("Control") && keys.includes("Options");
+
+  if (isVoiceOverCommand) {
+    const keyCodes: KeyCodes[] = [];
+    const modifiers: Modifiers[] = [];
+
+    for (const key of keys) {
+      if (Modifiers[key]) {
+        modifiers.push(Modifiers[key]);
+      } else if (KeyCodes[key]) {
+        keyCodes.push(KeyCodes[key as keyof KeyCodes]);
+      } else {
+        return { error: true };
+      }
+    }
+
+    return {
+      voiceOverCommand: true,
+      mappedCommand: {
+        keyCode: keyCodes,
+        modifiers,
+      },
+    };
+  }
+
+  const keyCodes: string[] = [];
+  const modifiers: string[] = [];
 
   for (const key of keys) {
     if (Modifiers[key]) {
-      modifiers.push(Modifiers[key]);
+      modifiers.push(key);
     } else if (KeyCodes[key]) {
-      keyCodes.push(KeyCodes[key as keyof KeyCodes]);
+      keyCodes.push(key);
     } else {
       return { error: true };
     }
   }
 
   return {
+    voiceOverCommand: false,
     mappedCommand: {
       keyCode: keyCodes,
       modifiers,
@@ -168,7 +213,8 @@ const generateTestSuite = ({
               for (const rawCommand of rawCommands) {
                 console.log(`Performing command: "${rawCommand}".`);
 
-                const { mappedCommand, error } = mapCommand(rawCommand);
+                const { voiceOverCommand, mappedCommand, error } =
+                  mapCommand(rawCommand);
 
                 if (error) {
                   const warning = `Unable to parse command: "${command}"`;
@@ -183,7 +229,16 @@ const generateTestSuite = ({
                   return;
                 }
 
-                await voiceOver.perform(mappedCommand);
+                if (voiceOverCommand) {
+                  await voiceOver.perform(mappedCommand);
+                } else {
+                  const keyboardString = [
+                    ...mappedCommand.modifiers,
+                    ...mappedCommand.keyCode,
+                  ].join("+");
+
+                  await voiceOver.press(keyboardString);
+                }
 
                 const lastSpokenPhrase = await voiceOver.lastSpokenPhrase();
 
