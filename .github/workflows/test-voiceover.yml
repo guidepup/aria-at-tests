@@ -26,6 +26,9 @@ jobs:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
       - uses: actions/setup-node@v3
         with:
           node-version: 20
@@ -74,6 +77,9 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
       - uses: actions/setup-node@v3
         with:
           node-version: 20
@@ -103,7 +109,7 @@ jobs:
             key: testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Run Tests
-        run: yarn test:macOsVoiceOver
+        run: yarn test
         continue-on-error: true
 
       - uses: actions/upload-artifact@v3
@@ -133,6 +139,9 @@ jobs:
       url: ${{ steps.deploy-pages.outputs.page_url }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
       - uses: actions/setup-node@v3
         with:
           node-version: 18
