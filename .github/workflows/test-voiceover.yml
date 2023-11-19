@@ -106,7 +106,7 @@ jobs:
         with:
           path: |
             testSuites.json
-            key: testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
+          key: testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Run Tests
         run: yarn test
