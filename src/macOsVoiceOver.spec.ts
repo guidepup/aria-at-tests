@@ -92,7 +92,7 @@ const generateTestSuite = ({
             at.toLowerCase() === voiceOverMacOs &&
             testId === screenReaderTest.testId &&
             task === screenReaderTest.task
-        )
+        ) ?? {}
       )
         .filter(([key, command]) => key.startsWith("command") && !!command)
         .map(([, command]) => command);
