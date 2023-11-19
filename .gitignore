@@ -109,3 +109,4 @@ test-results
 recordings
 playwright-report
 html-report
+testSuites.json

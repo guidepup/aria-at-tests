@@ -1,6 +1,5 @@
 .github
 .vscode
-docs
-lib
+aria-at
 node_modules
 .eslintrc.js

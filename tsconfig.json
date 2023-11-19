@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
     "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
     "target": "esnext",
     "module": "commonjs",
     "moduleResolution": "node",
     "declaration": true,
     "outDir": "./lib"
   },
-  "include": ["tests/**/*"],
+  "include": ["tests/**/*", "src"],
   "exclude": ["node_modules", "lib"]
 }
