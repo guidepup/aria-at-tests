@@ -79,23 +79,22 @@ jobs:
         spec: [
           "Combobox with Both List and Inline Autocomplete Example",
           "Rating Slider",
-          "Link Example 2 (img element with alt attribute)",
+          "Link Example 2",
           "Form Landmark",
           "Horizontal Multi-Thumb Slider",
           "Select Only Combobox Example",
           "Navigation Menu Button",
-          "Action Menu Button Example Using element.focus()",
+          "Action Menu Button Example",
           "Alert Example",
           "Disclosure Navigation Menu Example",
           "Complementary Landmark",
           "Radio Group Example Using Roving tabindex",
-          "Link Example 1 (span element with text content)",
-          "Checkbox Example (Two State)",
+          "Link Example 1",
+          "Checkbox Example",
           "Media Seek Slider",
           "Date Picker Spin Button Example",
-          "Checkbox Example (Mixed-State)",
           "Data Grid Example 1: Minimal Data Grid",
-          "Link Example 3 (CSS :before content property on a span element)",
+          "Link Example 3",
           "Vertical Temperature Slider",
           "Editor Menubar Example",
           "Switch Example",
@@ -124,7 +123,7 @@ jobs:
           node-version: 20
 
       - name: Guidepup Setup
-        uses: guidepup/setup-action@0.11.2
+        uses: guidepup/setup-action@0.11.3
 
       - name: Cache node_modules
         uses: actions/cache@v3
