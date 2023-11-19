@@ -45,7 +45,7 @@ export async function assert({
   );
 
   if (!found) {
-    console.error(
+    console.log(
       `Assertion "${assertion}" failed. Unable to find phrase "${phrase}" in spoken phrase log.`
     );
   } else {
