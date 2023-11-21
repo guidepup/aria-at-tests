@@ -16,7 +16,7 @@ export async function assert({
   if (!phrase) {
     const warning = `Unable to perform assertion: "${assertion}"`;
 
-    console.warn(warning);
+    console.log(warning);
 
     test.info().annotations.push({
       type: "issue",
@@ -52,5 +52,5 @@ export async function assert({
     console.log(`Assertion "${assertion}" succeeded.`);
   }
 
-  expect(found).toBeTruthy();
+  expect.soft(found).toBeTruthy();
 }

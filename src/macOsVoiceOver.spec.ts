@@ -126,7 +126,7 @@ const generateTestSuite = ({
   );
 
   test.describe(references.title, () => {
-    test.beforeAll(() => {
+    test.beforeEach(() => {
       console.table(references);
     });
 
@@ -156,11 +156,9 @@ const generateTestSuite = ({
       test.describe(screenReaderTest.title, () => {
         let stopRecording: () => void;
 
-        test.beforeAll(() => {
-          console.table(screenReaderTest);
-        });
-
         test.beforeEach(async ({ browserName, page, voiceOver }) => {
+          console.table(screenReaderTest);
+
           const { title, retry } = test.info();
 
           try {
@@ -172,7 +170,7 @@ const generateTestSuite = ({
           } catch {
             const warning = `Screen recording failed.`;
 
-            console.warn(warning);
+            console.log(warning);
 
             test.info().annotations.push({
               type: "issue",
@@ -194,7 +192,7 @@ const generateTestSuite = ({
           } catch {
             const warning = `Screen recording failed.`;
 
-            console.warn(warning);
+            console.log(warning);
 
             test.info().annotations.push({
               type: "issue",
@@ -204,47 +202,45 @@ const generateTestSuite = ({
         });
 
         screenReaderCommands.forEach((command) => {
-          assertions.forEach((assertion) => {
-            test(`using command '${command}': ${assertion}`, async ({
-              voiceOver,
-            }) => {
-              const rawCommands = command.split(",");
+          test(`Using command '${command}'`, async ({ voiceOver }) => {
+            const rawCommands = command.split(",");
 
-              for (const rawCommand of rawCommands) {
-                console.log(`Performing command: "${rawCommand}".`);
+            for (const rawCommand of rawCommands) {
+              console.log(`Performing command: "${rawCommand}".`);
 
-                const { voiceOverCommand, mappedCommand, error } =
-                  mapCommand(rawCommand);
+              const { voiceOverCommand, mappedCommand, error } =
+                mapCommand(rawCommand);
 
-                if (error) {
-                  const warning = `Unable to parse command: "${command}"`;
+              if (error) {
+                const warning = `Unable to parse command: "${command}"`;
 
-                  console.warn(warning);
+                console.log(warning);
 
-                  test.info().annotations.push({
-                    type: "issue",
-                    description: warning,
-                  });
+                test.info().annotations.push({
+                  type: "issue",
+                  description: warning,
+                });
 
-                  return;
-                }
-
-                if (voiceOverCommand) {
-                  await voiceOver.perform(mappedCommand);
-                } else {
-                  const keyboardString = [
-                    ...mappedCommand.modifiers,
-                    ...mappedCommand.keyCode,
-                  ].join("+");
-
-                  await voiceOver.press(keyboardString);
-                }
-
-                const lastSpokenPhrase = await voiceOver.lastSpokenPhrase();
-
-                console.log(`Screen reader output: "${lastSpokenPhrase}".`);
+                return;
               }
 
+              if (voiceOverCommand) {
+                await voiceOver.perform(mappedCommand);
+              } else {
+                const keyboardString = [
+                  ...mappedCommand.modifiers,
+                  ...mappedCommand.keyCode,
+                ].join("+");
+
+                await voiceOver.press(keyboardString);
+              }
+
+              const lastSpokenPhrase = await voiceOver.lastSpokenPhrase();
+
+              console.log(`Screen reader output: "${lastSpokenPhrase}".`);
+            }
+
+            assertions.forEach((assertion) => {
               assert({ assertion, screenReader: voiceOver, test });
             });
           });

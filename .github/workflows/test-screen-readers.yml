@@ -1,0 +1,367 @@
+name: Test Screen Readers
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  pull-requests: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  macos-install:
+    name: Install
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        id: cache-macos-node-modules
+        with:
+          path: |
+            node_modules
+          key: macos-modules-${{ hashFiles('yarn.lock') }}
+
+      - name: Cache Playwright binaries
+        uses: actions/cache@v3
+        id: cache-macos-playwright
+        with:
+          path: |
+            ~/Library/Caches/ms-playwright
+          key: macos-playwright-${{ hashFiles('yarn.lock') }}
+
+      - name: Cache Test Suites
+        uses: actions/cache@v3
+        id: cache-macos-test-suites
+        with:
+          path: |
+            testSuites.json
+          key: macos-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
+
+      - name: Install Dependencies
+        if: steps.cache-macos-node-modules.outputs.cache-macos-hit != 'true'
+        run: yarn install --frozen-lockfile
+ 
+      - name: Install Playwright Browsers
+        if: steps.cache-macos-playwright.outputs.cache-macos-hit != 'true'
+        run: yarn test:install
+ 
+      - name: Generate Test Suites
+        if: steps.cache-macos-test-suites.outputs.cache-macos-hit != 'true'
+        run: yarn test:generate
+
+  windows-install:
+    name: Install
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        id: cache-windows-node-modules
+        with:
+          path: |
+            node_modules
+          key: windows-modules-${{ hashFiles('yarn.lock') }}
+
+      - name: Cache Playwright binaries
+        uses: actions/cache@v3
+        id: cache-windows-playwright
+        with:
+          path: |
+            %USERPROFILE%\AppData\Local\ms-playwright
+          key: windows-playwright-${{ hashFiles('yarn.lock') }}
+
+      - name: Cache Test Suites
+        uses: actions/cache@v3
+        id: cache-windows-test-suites
+        with:
+          path: |
+            testSuites.json
+          key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
+
+      - name: Install Dependencies
+        if: steps.cache-windows-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
+ 
+      - name: Install Playwright Browsers
+        if: steps.cache-windows-playwright.outputs.cache-hit != 'true'
+        run: yarn test:install
+ 
+      - name: Generate Test Suites
+        if: steps.cache-windows-test-suites.outputs.cache-hit != 'true'
+        run: yarn test:generate
+
+  test-voiceover:
+    name: Playwright VoiceOver Tests (${{ matrix.spec }})
+    needs: macos-install
+    runs-on: macos-12
+    strategy:
+      fail-fast: false
+      matrix:
+        spec: [
+          "Combobox with Both List and Inline Autocomplete Example",
+          "Rating Slider",
+          "Link Example 2",
+          "Form Landmark",
+          "Horizontal Multi-Thumb Slider",
+          "Select Only Combobox Example",
+          "Navigation Menu Button",
+          "Action Menu Button Example",
+          "Alert Example",
+          "Disclosure Navigation Menu Example",
+          "Complementary Landmark",
+          "Radio Group Example Using Roving tabindex",
+          "Link Example 1",
+          "Checkbox Example",
+          "Media Seek Slider",
+          "Date Picker Spin Button Example",
+          "Data Grid Example 1: Minimal Data Grid",
+          "Link Example 3",
+          "Vertical Temperature Slider",
+          "Editor Menubar Example",
+          "Switch Example",
+          "Contentinfo Landmark",
+          "Action Menu Button Example Using aria-activedescendant",
+          "Command Button Example",
+          "Disclosure of Answers to Frequently Asked Questions Example",
+          "Breadcrumb Example",
+          "Main Landmark",
+          "Meter",
+          "Radio Group Example Using aria-activedescendant",
+          "Modal Dialog Example",
+          "Banner Landmark",
+          "Toggle Button",
+          "Color Viewer Slider",
+          "Tabs with Manual Activation",
+        ]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Guidepup Setup
+        uses: guidepup/setup-action@0.11.3
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: macos-modules-${{ hashFiles('yarn.lock') }}
+
+      - name: Cache Playwright
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/Library/Caches/ms-playwright
+          key: macos-playwright-${{ hashFiles('yarn.lock') }}
+ 
+      - name: Cache Test Suites
+        uses: actions/cache@v3
+        with:
+          path: |
+            testSuites.json
+          key: macos-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
+
+      - name: Run Tests
+        run: yarn test --config macos.config.ts -g "${{ matrix.spec }}" macOsVoiceOver.spec.ts
+        continue-on-error: true
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        continue-on-error: true
+        with:
+          name: artifacts-${{ matrix.spec }}
+          path: |
+            ./test-results
+            ./recordings
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        continue-on-error: true
+        with:
+          name: playwright-report-${{ matrix.spec }}
+          path: |
+            ./playwright-report
+
+  # test-nvda:
+  #   name: Playwright NVDA Tests (${{ matrix.spec }})
+  #   needs: windows-install
+  #   runs-on: windows-2022
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       spec: [
+  #         "Combobox with Both List and Inline Autocomplete Example",
+  #         "Rating Slider",
+  #         "Link Example 2",
+  #         "Form Landmark",
+  #         "Horizontal Multi-Thumb Slider",
+  #         "Select Only Combobox Example",
+  #         "Navigation Menu Button",
+  #         "Action Menu Button Example",
+  #         "Alert Example",
+  #         "Disclosure Navigation Menu Example",
+  #         "Complementary Landmark",
+  #         "Radio Group Example Using Roving tabindex",
+  #         "Link Example 1",
+  #         "Checkbox Example",
+  #         "Media Seek Slider",
+  #         "Date Picker Spin Button Example",
+  #         "Data Grid Example 1: Minimal Data Grid",
+  #         "Link Example 3",
+  #         "Vertical Temperature Slider",
+  #         "Editor Menubar Example",
+  #         "Switch Example",
+  #         "Contentinfo Landmark",
+  #         "Action Menu Button Example Using aria-activedescendant",
+  #         "Command Button Example",
+  #         "Disclosure of Answers to Frequently Asked Questions Example",
+  #         "Breadcrumb Example",
+  #         "Main Landmark",
+  #         "Meter",
+  #         "Radio Group Example Using aria-activedescendant",
+  #         "Modal Dialog Example",
+  #         "Banner Landmark",
+  #         "Toggle Button",
+  #         "Color Viewer Slider",
+  #         "Tabs with Manual Activation",
+  #       ]
+
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         submodules: recursive
+
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 20
+
+  #     - name: Guidepup Setup
+  #       uses: guidepup/setup-action@0.11.3
+
+  #     - name: Cache node_modules
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           node_modules
+  #         key: windows-modules-${{ hashFiles('yarn.lock') }}
+
+  #     - name: Cache Playwright
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           %USERPROFILE%\AppData\Local\ms-playwright
+  #         key: windows-playwright-${{ hashFiles('yarn.lock') }}
+ 
+  #     - name: Cache Test Suites
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           testSuites.json
+  #         key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
+
+  #     - name: Run Tests
+  #       run: yarn test --config windows.config.ts -g "${{ matrix.spec }}" windowsNvda.spec.ts
+  #       continue-on-error: true
+
+  #     - uses: actions/upload-artifact@v3
+  #       if: always()
+  #       continue-on-error: true
+  #       with:
+  #         name: artifacts-${{ matrix.spec }}
+  #         path: |
+  #           ./test-results
+  #           ./recordings
+
+  #     - uses: actions/upload-artifact@v3
+  #       if: always()
+  #       continue-on-error: true
+  #       with:
+  #         name: playwright-report-${{ matrix.spec }}
+  #         path: |
+  #           ./playwright-report
+
+  publish-html-report:
+    name: Publish to GitHub Pages
+    if: always()
+    needs: test-voiceover
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.head_ref || github.ref_name }}-report
+      url: ${{ steps.deploy-pages.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - uses: actions/download-artifact@v3
+        with:
+          path: ./playwright-report
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: modules-${{ hashFiles('yarn.lock') }}
+
+      - name: Create Test Report
+        run: yarn test:report
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./html-report
+
+      - name: GitHub Pages Deployment
+        id: deploy-pages
+        uses: actions/deploy-pages@v1
+
+      - name: PR Comment
+        if: ${{ always() && github.event_name == 'pull_request' }}
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            Playwright Test Report: ${{steps.deploy-pages.outputs.page_url}}
+          comment_tag: "Playwright Test Report"
+          pr_number: ${{ inputs.pr_number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
