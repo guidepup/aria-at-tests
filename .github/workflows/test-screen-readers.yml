@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   macos-install:
-    name: Install
+    name: MacOS Install
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
@@ -70,7 +70,7 @@ jobs:
         run: yarn test:generate
 
   windows-install:
-    name: Install
+    name: Windows Install
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v3
