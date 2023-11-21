@@ -125,7 +125,7 @@ const generateTestSuite = ({
     appliesTo.toLowerCase().split(",").includes(voiceOverMacOs)
   );
 
-  test.describe(references.title, () => {
+  test.describe(`${references.title} @voiceOver @macos`, () => {
     test.beforeEach(() => {
       console.table(references);
     });
@@ -201,7 +201,7 @@ const generateTestSuite = ({
           }
         });
 
-        screenReaderCommands.forEach((command) => {
+        for (const command of screenReaderCommands) {
           test(`Using command '${command}'`, async ({ voiceOver }) => {
             const rawCommands = command.split(",");
 
@@ -244,7 +244,7 @@ const generateTestSuite = ({
               await assert({ assertion, screenReader: voiceOver, test });
             }
           });
-        });
+        }
       });
     });
   });
