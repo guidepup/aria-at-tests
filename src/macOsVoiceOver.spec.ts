@@ -240,9 +240,9 @@ const generateTestSuite = ({
               console.log(`Screen reader output: "${lastSpokenPhrase}".`);
             }
 
-            assertions.forEach((assertion) => {
-              assert({ assertion, screenReader: voiceOver, test });
-            });
+            for (const assertion of assertions) {
+              await assert({ assertion, screenReader: voiceOver, test });
+            }
           });
         });
       });
