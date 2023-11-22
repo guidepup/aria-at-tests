@@ -1,6 +1,7 @@
 import { ScreenReader } from "@guidepup/guidepup";
 import { voTest } from "@guidepup/playwright";
 import { expect } from "@playwright/test";
+import { annotate } from "./annotate";
 
 export async function assert({
   assertion,
@@ -14,13 +15,9 @@ export async function assert({
   const phrase = assertion.match(/'([^']+)'/)?.[1];
 
   if (!phrase) {
-    const warning = `Unable to perform assertion: "${assertion}"`;
-
-    console.log(warning);
-
-    test.info().annotations.push({
-      type: "issue",
-      description: warning,
+    annotate({
+      test,
+      warning: `Unable to perform assertion: "${assertion}"`,
     });
 
     return;
@@ -52,5 +49,10 @@ export async function assert({
     console.log(`Assertion "${assertion}" succeeded.`);
   }
 
-  expect.soft(found).toBeTruthy();
+  expect
+    .soft(
+      found,
+      `Assertion "${assertion}" failed. Unable to find phrase "${phrase}" in spoken phrase log.`
+    )
+    .toBeTruthy();
 }

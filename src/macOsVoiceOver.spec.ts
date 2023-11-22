@@ -1,3 +1,4 @@
+import { platform, release } from "os";
 import { voTest as test } from "@guidepup/playwright";
 import { KeyCodes } from "@guidepup/guidepup/lib/macOS/KeyCodes";
 import { Modifiers } from "@guidepup/guidepup/lib/macOS/Modifiers";
@@ -5,9 +6,12 @@ import { record } from "./record";
 import { setup } from "./setup";
 import { readTestSuitesCacheSync, TestSuite } from "./testSuites";
 import { assert } from "./assert";
+import { mapCommandToGuidepupKeys } from "./mapCommandToGuidepupKeys";
+import { annotate } from "./annotate";
+import { getTestDetails } from "./getTestDetails";
+import { getScreenReaderTests } from "./getScreenReaderTests";
 
-const toTitleCase = (key: string) =>
-  key.charAt(0).toUpperCase() + key.substring(1).toLowerCase();
+const screenReaderName = "voiceover_macos";
 
 const mapCommand = (
   command
@@ -23,36 +27,7 @@ const mapCommand = (
       voiceOverCommand: false;
       mappedCommand: { keyCode: string[]; modifiers: string[] };
     } => {
-  if (/\//.test(command)) {
-    return { error: true };
-  }
-
-  if (/[()]/.test(command)) {
-    return { error: true };
-  }
-
-  if (/\bor\b/.test(command)) {
-    return { error: true };
-  }
-
-  if (/\bfollowed\b/.test(command)) {
-    return { error: true };
-  }
-
-  const keys = command
-    // PAGE_DOWN and PAGE_UP are the only commands that have the extra _ inside a key
-    .replaceAll("PAGE_DOWN", "PageDown")
-    .replaceAll("PAGE_UP", "PageUp")
-    .replaceAll("CTRL", "Control")
-    .replaceAll("OPT", "Option")
-    .replaceAll("CMD", "Command")
-    .split("_")
-    .map((key) =>
-      toTitleCase(key.trim())
-        // TODO: handle this better
-        .replaceAll("Pagedown", "PageDown")
-        .replaceAll("Pageup", "PageUp")
-    );
+  const keys = mapCommandToGuidepupKeys(command);
 
   const isVoiceOverCommand =
     keys.includes("Control") && keys.includes("Options");
@@ -102,18 +77,41 @@ const mapCommand = (
   };
 };
 
-const applicationNameMap = {
-  chromium: "Chromium",
-  chrome: "Google Chrome",
-  "chrome-beta": "Google Chrome Beta",
-  msedge: "Microsoft Edge",
-  "msedge-beta": "Microsoft Edge Beta",
-  "msedge-dev": "Microsoft Edge Dev",
-  firefox: "Nightly",
-  webkit: "Playwright",
-};
+const executeCommandSequence = async ({ command, voiceOver }) => {
+  const rawCommands = command.split(",");
 
-const voiceOverMacOs = "voiceover_macos";
+  for (const rawCommand of rawCommands) {
+    console.log(`Performing command: "${rawCommand}".`);
+
+    const { voiceOverCommand, mappedCommand, error } = mapCommand(rawCommand);
+
+    if (error) {
+      annotate({
+        test,
+        warning: `Unable to parse command: "${command}"`,
+      });
+
+      return;
+    }
+
+    // E.g. Sending "Tab" to VO isn't recognised. It is a keypress
+    // that is recognised by the browser and prompts VO to act.
+    if (voiceOverCommand) {
+      await voiceOver.perform(mappedCommand);
+    } else {
+      const keyboardString = [
+        ...mappedCommand.modifiers,
+        ...mappedCommand.keyCode,
+      ].join("+");
+
+      await voiceOver.press(keyboardString);
+    }
+
+    const lastSpokenPhrase = await voiceOver.lastSpokenPhrase();
+
+    console.log(`Screen reader output: "${lastSpokenPhrase}".`);
+  }
+};
 
 const generateTestSuite = ({
   commands,
@@ -121,65 +119,45 @@ const generateTestSuite = ({
   references,
   tests,
 }: TestSuite) => {
-  const screenReaderTests = tests.filter(({ appliesTo }) =>
-    appliesTo.toLowerCase().split(",").includes(voiceOverMacOs)
-  );
+  const screenReaderTests = getScreenReaderTests({ screenReaderName, tests });
 
   test.describe(`@macos @voiceOver ${references.title}`, () => {
-    test.beforeEach(() => {
+    test.beforeEach(({ browserName, browser }) => {
+      console.table({
+        osPlatform: platform(),
+        osRelease: release(),
+        browserName,
+        browserVersion: browser.version(),
+      });
+
       console.table(references);
     });
 
-    screenReaderTests.forEach((screenReaderTest) => {
-      const screenReaderCommands = Object.entries(
-        commands.find(
-          ({ at, task, testId }) =>
-            at.toLowerCase() === voiceOverMacOs &&
-            testId === screenReaderTest.testId &&
-            task === screenReaderTest.task
-        ) ?? {}
-      )
-        .filter(([key, command]) => key.startsWith("command") && !!command)
-        .map(([, command]) => command);
-
-      const assertions = Object.entries(screenReaderTest)
-        .filter(
-          ([key, assertion]) => key.startsWith("assertion") && !!assertion
-        )
-        .map(([, assertion]) => assertion);
-
-      const testUrl = `https://aria-at.netlify.app/tests/${name}/${references.reference.replace(
-        ".html",
-        `.${screenReaderTest.setupScript}`
-      )}`;
+    for (const screenReaderTest of screenReaderTests) {
+      const { screenReaderCommands, assertions, testUrl } = getTestDetails({
+        commands,
+        name,
+        references,
+        screenReaderName,
+        screenReaderTest,
+      });
 
       test.describe(screenReaderTest.title, () => {
         let stopRecording: () => void;
 
-        test.beforeEach(async ({ browserName, page, voiceOver }) => {
+        test.beforeEach(async ({ page, voiceOver }) => {
           console.table(screenReaderTest);
-
-          const { title, retry } = test.info();
 
           try {
             stopRecording = record({
-              title,
-              retry,
-              screenReaderName: "voiceOver",
+              test,
+              screenReaderName,
             });
           } catch {
-            const warning = `Screen recording failed.`;
-
-            console.log(warning);
-
-            test.info().annotations.push({
-              type: "issue",
-              description: warning,
-            });
+            annotate({ test, warning: "Screen recording failed." });
           }
 
           await setup({
-            applicationName: applicationNameMap[browserName],
             page,
             testUrl,
             screenReader: voiceOver,
@@ -190,55 +168,13 @@ const generateTestSuite = ({
           try {
             stopRecording?.();
           } catch {
-            const warning = `Screen recording failed.`;
-
-            console.log(warning);
-
-            test.info().annotations.push({
-              type: "issue",
-              description: warning,
-            });
+            annotate({ test, warning: "Screen recording failed." });
           }
         });
 
         for (const command of screenReaderCommands) {
-          test(`Using command '${command}'`, async ({ voiceOver }) => {
-            const rawCommands = command.split(",");
-
-            for (const rawCommand of rawCommands) {
-              console.log(`Performing command: "${rawCommand}".`);
-
-              const { voiceOverCommand, mappedCommand, error } =
-                mapCommand(rawCommand);
-
-              if (error) {
-                const warning = `Unable to parse command: "${command}"`;
-
-                console.log(warning);
-
-                test.info().annotations.push({
-                  type: "issue",
-                  description: warning,
-                });
-
-                return;
-              }
-
-              if (voiceOverCommand) {
-                await voiceOver.perform(mappedCommand);
-              } else {
-                const keyboardString = [
-                  ...mappedCommand.modifiers,
-                  ...mappedCommand.keyCode,
-                ].join("+");
-
-                await voiceOver.press(keyboardString);
-              }
-
-              const lastSpokenPhrase = await voiceOver.lastSpokenPhrase();
-
-              console.log(`Screen reader output: "${lastSpokenPhrase}".`);
-            }
+          test(`Using command sequence '${command}'`, async ({ voiceOver }) => {
+            await executeCommandSequence({ command, voiceOver });
 
             for (const assertion of assertions) {
               await assert({ assertion, screenReader: voiceOver, test });
@@ -246,14 +182,16 @@ const generateTestSuite = ({
           });
         }
       });
-    });
+    }
   });
 };
 
 const generateTestSuites = () => {
   const testSuites = readTestSuitesCacheSync();
 
-  testSuites.forEach((testSuite) => generateTestSuite(testSuite));
+  for (const testSuite of testSuites) {
+    generateTestSuite(testSuite);
+  }
 };
 
 generateTestSuites();

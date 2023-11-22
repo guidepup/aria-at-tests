@@ -1,16 +1,17 @@
 import { macOSRecord, windowsRecord } from "@guidepup/guidepup";
+import { voTest } from "@guidepup/playwright";
 import { platform, release } from "os";
 import { join } from "path";
 
 export function record({
-  retry,
   screenReaderName,
-  title,
+  test,
 }: {
-  retry: number;
   screenReaderName: string;
-  title: string;
+  test: typeof voTest;
 }): () => void {
+  const { title, retry } = test.info();
+
   const directoryPath = title
     .replaceAll(/\s+/g, "_")
     .replaceAll(/[\W_]+/g, "_")
@@ -19,6 +20,8 @@ export function record({
   const platformName = platform();
   const fileName = `test_${platformName}_${release()}_${screenReaderName}_attempt_${retry}.mov`;
   const filePath = join("./recordings/", directoryPath, fileName);
+
+  console.table({ directoryPath, fileName });
 
   switch (platformName) {
     case "darwin": {
@@ -29,7 +32,7 @@ export function record({
     }
     default: {
       return () => {
-        // Not supported
+        // Not Supported
       };
     }
   }
