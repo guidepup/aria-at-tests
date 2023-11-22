@@ -125,7 +125,7 @@ const generateTestSuite = ({
     appliesTo.toLowerCase().split(",").includes(voiceOverMacOs)
   );
 
-  test.describe(`${references.title} @voiceOver @macos`, () => {
+  test.describe(`@macos @voiceOver ${references.title}`, () => {
     test.beforeEach(() => {
       console.table(references);
     });

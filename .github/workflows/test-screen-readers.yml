@@ -60,11 +60,11 @@ jobs:
       - name: Install Dependencies
         if: steps.cache-macos-node-modules.outputs.cache-macos-hit != 'true'
         run: yarn install --frozen-lockfile
- 
+
       - name: Install Playwright Browsers
         if: steps.cache-macos-playwright.outputs.cache-macos-hit != 'true'
         run: yarn test:install
- 
+
       - name: Generate Test Suites
         if: steps.cache-macos-test-suites.outputs.cache-macos-hit != 'true'
         run: yarn test:generate
@@ -108,64 +108,59 @@ jobs:
       - name: Install Dependencies
         if: steps.cache-windows-node-modules.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
- 
+
       - name: Install Playwright Browsers
         if: steps.cache-windows-playwright.outputs.cache-hit != 'true'
         run: yarn test:install
- 
+
       - name: Generate Test Suites
         if: steps.cache-windows-test-suites.outputs.cache-hit != 'true'
         run: yarn test:generate
 
   test-voiceover:
-    name: Playwright VoiceOver Tests (${{ matrix.shard }})
+    name: Playwright VoiceOver Tests (${{ matrix.spec }})
     needs: macos-install
     runs-on: macos-12
     strategy:
       fail-fast: false
       matrix:
-        shard: [
-          1/40,
-          2/40,
-          3/40,
-          4/40,
-          5/40,
-          6/40,
-          7/40,
-          8/40,
-          9/40,
-          10/40,
-          11/40,
-          12/40,
-          13/40,
-          14/40,
-          15/40,
-          16/40,
-          17/40,
-          18/40,
-          19/40,
-          20/40,
-          21/40,
-          22/40,
-          23/40,
-          24/40,
-          25/40,
-          26/40,
-          27/40,
-          28/40,
-          29/40,
-          30/40,
-          31/40,
-          32/40,
-          33/40,
-          34/40,
-          35/40,
-          36/40,
-          37/40,
-          38/40,
-          39/40,
-          40/40,
-        ]
+        spec:
+          [
+            "Combobox with Both List and Inline Autocomplete Example",
+            "Rating Slider",
+            "Link Example 2",
+            "Form Landmark",
+            "Horizontal Multi-Thumb Slider",
+            "Select Only Combobox Example",
+            "Navigation Menu Button",
+            "Action Menu Button Example",
+            "Alert Example",
+            "Disclosure Navigation Menu Example",
+            "Complementary Landmark",
+            "Radio Group Example Using Roving tabindex",
+            "Link Example 1",
+            "Checkbox Example",
+            "Media Seek Slider",
+            "Date Picker Spin Button Example",
+            "Data Grid Example 1: Minimal Data Grid",
+            "Link Example 3",
+            "Vertical Temperature Slider",
+            "Editor Menubar Example",
+            "Switch Example",
+            "Contentinfo Landmark",
+            "Action Menu Button Example Using aria-activedescendant",
+            "Command Button Example",
+            "Disclosure of Answers to Frequently Asked Questions Example",
+            "Breadcrumb Example",
+            "Main Landmark",
+            "Meter",
+            "Radio Group Example Using aria-activedescendant",
+            "Modal Dialog Example",
+            "Banner Landmark",
+            "Toggle Button",
+            "Color Viewer Slider",
+            "Tabs with Manual Activation",
+          ]
 
     steps:
       - uses: actions/checkout@v3
@@ -192,7 +187,7 @@ jobs:
           path: |
             ~/Library/Caches/ms-playwright
           key: macos-playwright-${{ hashFiles('yarn.lock') }}
- 
+
       - name: Cache Test Suites
         uses: actions/cache@v3
         with:
@@ -201,14 +196,14 @@ jobs:
           key: macos-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Run Tests
-        run: yarn test --config macos.config.ts -g "@voiceOver" --shard "${{ matrix.shard }}"
+        run: yarn test --config macos.config.ts -g "@macos @voiceOver *${{ matrix.spec }}*"
         continue-on-error: true
 
       - uses: actions/upload-artifact@v3
         if: always()
         continue-on-error: true
         with:
-          name: artifacts-${{ matrix.shard }}
+          name: artifacts-${{ matrix.spec }}
           path: |
             ./test-results
             ./recordings
@@ -217,12 +212,12 @@ jobs:
         if: always()
         continue-on-error: true
         with:
-          name: playwright-report-${{ matrix.shard }}
+          name: playwright-report-${{ matrix.spec }}
           path: |
             ./playwright-report
 
   # test-nvda:
-  #   name: Playwright NVDA Tests (${{ matrix.shard }})
+  #   name: Playwright NVDA Tests (${{ matrix.spec }})
   #   needs: windows-install
   #   runs-on: windows-2022
   #   strategy:
@@ -290,7 +285,7 @@ jobs:
   #         path: |
   #           %USERPROFILE%\AppData\Local\ms-playwright
   #         key: windows-playwright-${{ hashFiles('yarn.lock') }}
- 
+
   #     - name: Cache Test Suites
   #       uses: actions/cache@v3
   #       with:
@@ -299,14 +294,14 @@ jobs:
   #         key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
   #     - name: Run Tests
-  #       run: yarn test --config windows.config.ts -g "${{ matrix.shard }}" windowsNvda.spec.ts
+  #       run: yarn test --config windows.config.ts -g "${{ matrix.spec }}" windowsNvda.spec.ts
   #       continue-on-error: true
 
   #     - uses: actions/upload-artifact@v3
   #       if: always()
   #       continue-on-error: true
   #       with:
-  #         name: artifacts-${{ matrix.shard }}
+  #         name: artifacts-${{ matrix.spec }}
   #         path: |
   #           ./test-results
   #           ./recordings
@@ -315,7 +310,7 @@ jobs:
   #       if: always()
   #       continue-on-error: true
   #       with:
-  #         name: playwright-report-${{ matrix.shard }}
+  #         name: playwright-report-${{ matrix.spec }}
   #         path: |
   #           ./playwright-report
 
