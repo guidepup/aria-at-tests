@@ -10,14 +10,15 @@ import { mapCommandToGuidepupKeys } from "./mapCommandToGuidepupKeys";
 import { annotate } from "./annotate";
 import { getTestDetails } from "./getTestDetails";
 import { getScreenReaderTests } from "./getScreenReaderTests";
+import { NVDA } from "@guidepup/guidepup";
 
 const screenReaderName = "nvda";
 
-type KeyCodesType = typeof KeyCodes;
-type ModifiersType = typeof Modifiers;
+type KeyCodesType = (typeof KeyCodes)[keyof typeof KeyCodes];
+type ModifiersType = (typeof Modifiers)[keyof typeof Modifiers];
 
 const mapCommand = (
-  command
+  command: string
 ):
   | { error: true; mappedCommand?: undefined }
   | {
@@ -47,13 +48,26 @@ const mapCommand = (
   };
 };
 
-const executeCommandSequence = async ({ command, nvda }) => {
+const executeCommandSequence = async ({
+  command,
+  nvda,
+}: {
+  command: string;
+  nvda: NVDA;
+}) => {
   const rawCommands = command.split(",");
 
   for (const rawCommand of rawCommands) {
-    console.log(`Performing command: "${rawCommand}".`);
-
     const { mappedCommand, error } = mapCommand(rawCommand);
+
+    console.log(`Performing command: "${rawCommand}"`);
+    console.log(
+      "Mapped to: ",
+      JSON.stringify({
+        keyCode: mappedCommand.keyCode.map((keyCode) => keyCode.symbol),
+        modifiers: mappedCommand.modifiers.map((modifier) => modifier.symbol),
+      })
+    );
 
     if (error) {
       annotate({

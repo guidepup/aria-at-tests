@@ -8,7 +8,7 @@ const toTitleCase = (key: string) =>
     )
     .join("");
 
-export const mapCommandToGuidepupKeys = (command) =>
+export const mapCommandToGuidepupKeys = (command: string) =>
   command
     .toLowerCase()
     // Handle commands that have an extra _ inside the key itself
