@@ -14,6 +14,7 @@ const config: PlaywrightTestConfig = {
       use: {
         ...devices["Desktop Chrome"],
         headless: false,
+        channel: "chrome",
       },
     },
   ],
