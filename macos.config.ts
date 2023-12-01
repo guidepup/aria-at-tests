@@ -11,10 +11,7 @@ const config: PlaywrightTestConfig = {
   projects: [
     {
       name: "webkit",
-      use: {
-        ...devices["Desktop Safari"],
-        headless: false,
-      },
+      use: { ...devices["Desktop Safari"], headless: false },
     },
   ],
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",

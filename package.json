@@ -27,7 +27,7 @@
     "lint:fix": "yarn lint --fix",
     "test": "playwright test",
     "test:generate": "ts-node src/generateTestSuitesCache.ts",
-    "test:install": "npx playwright install --with-deps webkit chrome",
+    "test:install": "npx playwright install --with-deps webkit chromium",
     "test:report": "ts-node src/report.ts"
   },
   "dependencies": {

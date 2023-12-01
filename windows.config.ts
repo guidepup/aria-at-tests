@@ -10,12 +10,8 @@ const config: PlaywrightTestConfig = {
   retries: 0,
   projects: [
     {
-      name: "Google Chrome",
-      use: {
-        ...devices["Desktop Chrome"],
-        headless: false,
-        channel: "chrome",
-      },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"], headless: false },
     },
   ],
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
