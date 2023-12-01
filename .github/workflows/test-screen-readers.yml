@@ -39,7 +39,7 @@ jobs:
         with:
           path: |
             node_modules
-          key: macos-modules-${{ hashFiles('yarn.lock') }}
+          key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Playwright binaries
         uses: actions/cache@v3
@@ -47,7 +47,7 @@ jobs:
         with:
           path: |
             ~/Library/Caches/ms-playwright
-          key: macos-playwright-${{ hashFiles('yarn.lock') }}
+          key: macos-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Test Suites
         uses: actions/cache@v3
@@ -87,7 +87,7 @@ jobs:
         with:
           path: |
             node_modules
-          key: windows-modules-${{ hashFiles('yarn.lock') }}
+          key: windows-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Playwright binaries
         uses: actions/cache@v3
@@ -95,7 +95,7 @@ jobs:
         with:
           path: |
             C:\Users\runneradmin\AppData\Local\ms-playwright
-          key: windows-playwright-${{ hashFiles('yarn.lock') }}
+          key: windows-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Test Suites
         uses: actions/cache@v3
@@ -179,14 +179,14 @@ jobs:
         with:
           path: |
             node_modules
-          key: macos-modules-${{ hashFiles('yarn.lock') }}
+          key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Playwright
         uses: actions/cache@v3
         with:
           path: |
             ~/Library/Caches/ms-playwright
-          key: macos-playwright-${{ hashFiles('yarn.lock') }}
+          key: macos-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Test Suites
         uses: actions/cache@v3
@@ -277,14 +277,14 @@ jobs:
         with:
           path: |
             node_modules
-          key: windows-modules-${{ hashFiles('yarn.lock') }}
+          key: windows-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Playwright
         uses: actions/cache@v3
         with:
           path: |
             C:\Users\runneradmin\AppData\Local\ms-playwright
-          key: windows-playwright-${{ hashFiles('yarn.lock') }}
+          key: windows-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Test Suites
         uses: actions/cache@v3
