@@ -1,5 +1,5 @@
 import { ScreenReader } from "@guidepup/guidepup";
-import { voTest } from "@guidepup/playwright";
+import { test as playwrightTest } from "@playwright/test";
 import { expect } from "@playwright/test";
 import { annotate } from "./annotate";
 
@@ -10,7 +10,7 @@ export async function assert({
 }: {
   assertion: string;
   screenReader: ScreenReader;
-  test: typeof voTest;
+  test: typeof playwrightTest;
 }) {
   const phrase = assertion.match(/'([^']+)'/)?.[1];
 

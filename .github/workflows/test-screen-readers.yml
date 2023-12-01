@@ -58,15 +58,15 @@ jobs:
           key: macos-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Install Dependencies
-        if: steps.cache-macos-node-modules.outputs.cache-macos-hit != 'true'
+        if: steps.cache-macos-node-modules.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
       - name: Install Playwright Browsers
-        if: steps.cache-macos-playwright.outputs.cache-macos-hit != 'true'
+        if: steps.cache-macos-playwright.outputs.cache-hit != 'true'
         run: yarn test:install
 
       - name: Generate Test Suites
-        if: steps.cache-macos-test-suites.outputs.cache-macos-hit != 'true'
+        if: steps.cache-macos-test-suites.outputs.cache-hit != 'true'
         run: yarn test:generate
 
   windows-install:
@@ -94,7 +94,7 @@ jobs:
         id: cache-windows-playwright
         with:
           path: |
-            %USERPROFILE%\AppData\Local\ms-playwright
+            C:\Users\runneradmin\AppData\Local\ms-playwright
           key: windows-playwright-${{ hashFiles('yarn.lock') }}
 
       - name: Cache Test Suites
@@ -172,7 +172,7 @@ jobs:
           node-version: 20
 
       - name: Guidepup Setup
-        uses: guidepup/setup-action@0.11.3
+        uses: guidepup/setup-action@0.12.0
 
       - name: Cache node_modules
         uses: actions/cache@v3
@@ -203,7 +203,7 @@ jobs:
         if: always()
         continue-on-error: true
         with:
-          name: artifacts-${{ matrix.spec }}
+          name: artifacts-macos-voiceover-${{ matrix.spec }}
           path: |
             ./test-results
             ./recordings
@@ -212,112 +212,112 @@ jobs:
         if: always()
         continue-on-error: true
         with:
-          name: playwright-report-${{ matrix.spec }}
+          name: playwright-report-macos-voiceover-${{ matrix.spec }}
           path: |
             ./playwright-report
 
-  # test-nvda:
-  #   name: Playwright NVDA Tests (${{ matrix.spec }})
-  #   needs: windows-install
-  #   runs-on: windows-2022
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       spec: [
-  #         "Combobox with Both List and Inline Autocomplete Example",
-  #         "Rating Slider",
-  #         "Link Example 2",
-  #         "Form Landmark",
-  #         "Horizontal Multi-Thumb Slider",
-  #         "Select Only Combobox Example",
-  #         "Navigation Menu Button",
-  #         "Action Menu Button Example",
-  #         "Alert Example",
-  #         "Disclosure Navigation Menu Example",
-  #         "Complementary Landmark",
-  #         "Radio Group Example Using Roving tabindex",
-  #         "Link Example 1",
-  #         "Checkbox Example",
-  #         "Media Seek Slider",
-  #         "Date Picker Spin Button Example",
-  #         "Data Grid Example 1: Minimal Data Grid",
-  #         "Link Example 3",
-  #         "Vertical Temperature Slider",
-  #         "Editor Menubar Example",
-  #         "Switch Example",
-  #         "Contentinfo Landmark",
-  #         "Action Menu Button Example Using aria-activedescendant",
-  #         "Command Button Example",
-  #         "Disclosure of Answers to Frequently Asked Questions Example",
-  #         "Breadcrumb Example",
-  #         "Main Landmark",
-  #         "Meter",
-  #         "Radio Group Example Using aria-activedescendant",
-  #         "Modal Dialog Example",
-  #         "Banner Landmark",
-  #         "Toggle Button",
-  #         "Color Viewer Slider",
-  #         "Tabs with Manual Activation",
-  #       ]
+  test-nvda:
+    name: Playwright NVDA Tests (${{ matrix.spec }})
+    needs: windows-install
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        spec: [
+          "Combobox with Both List and Inline Autocomplete Example",
+          "Rating Slider",
+          "Link Example 2",
+          "Form Landmark",
+          "Horizontal Multi-Thumb Slider",
+          "Select Only Combobox Example",
+          "Navigation Menu Button",
+          "Action Menu Button Example",
+          "Alert Example",
+          "Disclosure Navigation Menu Example",
+          "Complementary Landmark",
+          "Radio Group Example Using Roving tabindex",
+          "Link Example 1",
+          "Checkbox Example",
+          "Media Seek Slider",
+          "Date Picker Spin Button Example",
+          "Data Grid Example 1: Minimal Data Grid",
+          "Link Example 3",
+          "Vertical Temperature Slider",
+          "Editor Menubar Example",
+          "Switch Example",
+          "Contentinfo Landmark",
+          "Action Menu Button Example Using aria-activedescendant",
+          "Command Button Example",
+          "Disclosure of Answers to Frequently Asked Questions Example",
+          "Breadcrumb Example",
+          "Main Landmark",
+          "Meter",
+          "Radio Group Example Using aria-activedescendant",
+          "Modal Dialog Example",
+          "Banner Landmark",
+          "Toggle Button",
+          "Color Viewer Slider",
+          "Tabs with Manual Activation",
+        ]
 
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       with:
-  #         submodules: recursive
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 20
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
 
-  #     - name: Guidepup Setup
-  #       uses: guidepup/setup-action@0.11.3
+      - name: Guidepup Setup
+        uses: guidepup/setup-action@0.12.0
 
-  #     - name: Cache node_modules
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: |
-  #           node_modules
-  #         key: windows-modules-${{ hashFiles('yarn.lock') }}
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: windows-modules-${{ hashFiles('yarn.lock') }}
 
-  #     - name: Cache Playwright
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: |
-  #           %USERPROFILE%\AppData\Local\ms-playwright
-  #         key: windows-playwright-${{ hashFiles('yarn.lock') }}
+      - name: Cache Playwright
+        uses: actions/cache@v3
+        with:
+          path: |
+            C:\Users\runneradmin\AppData\Local\ms-playwright
+          key: windows-playwright-${{ hashFiles('yarn.lock') }}
 
-  #     - name: Cache Test Suites
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: |
-  #           testSuites.json
-  #         key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
+      - name: Cache Test Suites
+        uses: actions/cache@v3
+        with:
+          path: |
+            testSuites.json
+          key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
-  #     - name: Run Tests
-  #       run: yarn test --config windows.config.ts -g "${{ matrix.spec }}" windowsNvda.spec.ts
-  #       continue-on-error: true
+      - name: Run Tests
+        run: yarn test --config windows.config.ts -g "@windows @nvda *${{ matrix.spec }}*"
+        continue-on-error: true
 
-  #     - uses: actions/upload-artifact@v3
-  #       if: always()
-  #       continue-on-error: true
-  #       with:
-  #         name: artifacts-${{ matrix.spec }}
-  #         path: |
-  #           ./test-results
-  #           ./recordings
+      - uses: actions/upload-artifact@v3
+        if: always()
+        continue-on-error: true
+        with:
+          name: artifacts-windows-nvda-${{ matrix.spec }}
+          path: |
+            ./test-results
+            ./recordings
 
-  #     - uses: actions/upload-artifact@v3
-  #       if: always()
-  #       continue-on-error: true
-  #       with:
-  #         name: playwright-report-${{ matrix.spec }}
-  #         path: |
-  #           ./playwright-report
+      - uses: actions/upload-artifact@v3
+        if: always()
+        continue-on-error: true
+        with:
+          name: playwright-report-windows-nvda-${{ matrix.spec }}
+          path: |
+            ./playwright-report
 
   publish-html-report:
     name: Publish to GitHub Pages
     if: always()
-    needs: test-voiceover
+    needs: [test-voiceover, test-nvda]
     runs-on: ubuntu-latest
     environment:
       name: ${{ github.head_ref || github.ref_name }}-report

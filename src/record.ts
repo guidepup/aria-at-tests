@@ -1,5 +1,5 @@
 import { macOSRecord, windowsRecord } from "@guidepup/guidepup";
-import { voTest } from "@guidepup/playwright";
+import { test as playwrightTest } from "@playwright/test";
 import { platform, release } from "os";
 import { join } from "path";
 
@@ -8,7 +8,7 @@ export function record({
   test,
 }: {
   screenReaderName: string;
-  test: typeof voTest;
+  test: typeof playwrightTest;
 }): () => void {
   const { title, retry } = test.info();
 
