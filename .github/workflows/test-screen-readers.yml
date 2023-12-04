@@ -223,42 +223,43 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        spec: [
-          "Combobox with Both List and Inline Autocomplete Example",
-          "Rating Slider",
-          "Link Example 2",
-          "Form Landmark",
-          "Horizontal Multi-Thumb Slider",
-          "Select Only Combobox Example",
-          "Navigation Menu Button",
-          "Action Menu Button Example",
-          "Alert Example",
-          "Disclosure Navigation Menu Example",
-          "Complementary Landmark",
-          "Radio Group Example Using Roving tabindex",
-          "Link Example 1",
-          "Checkbox Example",
-          "Media Seek Slider",
-          "Date Picker Spin Button Example",
-          "Data Grid Example 1: Minimal Data Grid",
-          "Link Example 3",
-          "Vertical Temperature Slider",
-          "Editor Menubar Example",
-          "Switch Example",
-          "Contentinfo Landmark",
-          "Action Menu Button Example Using aria-activedescendant",
-          "Command Button Example",
-          "Disclosure of Answers to Frequently Asked Questions Example",
-          "Breadcrumb Example",
-          "Main Landmark",
-          "Meter",
-          "Radio Group Example Using aria-activedescendant",
-          "Modal Dialog Example",
-          "Banner Landmark",
-          "Toggle Button",
-          "Color Viewer Slider",
-          "Tabs with Manual Activation",
-        ]
+        spec:
+          [
+            "Combobox with Both List and Inline Autocomplete Example",
+            "Rating Slider",
+            "Link Example 2",
+            "Form Landmark",
+            "Horizontal Multi-Thumb Slider",
+            "Select Only Combobox Example",
+            "Navigation Menu Button",
+            "Action Menu Button Example",
+            "Alert Example",
+            "Disclosure Navigation Menu Example",
+            "Complementary Landmark",
+            "Radio Group Example Using Roving tabindex",
+            "Link Example 1",
+            "Checkbox Example",
+            "Media Seek Slider",
+            "Date Picker Spin Button Example",
+            "Data Grid Example 1: Minimal Data Grid",
+            "Link Example 3",
+            "Vertical Temperature Slider",
+            "Editor Menubar Example",
+            "Switch Example",
+            "Contentinfo Landmark",
+            "Action Menu Button Example Using aria-activedescendant",
+            "Command Button Example",
+            "Disclosure of Answers to Frequently Asked Questions Example",
+            "Breadcrumb Example",
+            "Main Landmark",
+            "Meter",
+            "Radio Group Example Using aria-activedescendant",
+            "Modal Dialog Example",
+            "Banner Landmark",
+            "Toggle Button",
+            "Color Viewer Slider",
+            "Tabs with Manual Activation",
+          ]
 
     steps:
       - uses: actions/checkout@v3
@@ -337,10 +338,11 @@ jobs:
 
       - name: Cache node_modules
         uses: actions/cache@v3
+        id: cache-macos-node-modules
         with:
           path: |
             node_modules
-          key: modules-${{ hashFiles('yarn.lock') }}
+          key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Create Test Report
         run: yarn test:report

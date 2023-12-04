@@ -1,7 +1,6 @@
 /* eslint-disable no-empty-pattern */
 import {
   nvda,
-  windowsActivate,
   WindowsKeyCodes,
   WindowsModifiers,
 } from "@guidepup/guidepup";
@@ -35,8 +34,8 @@ const firefoxDirectory = directories
   .at(0)?.name;
 
 function byLatestRevision(directoryA, directoryB) {
-  const revisionA = directoryA.split("-").at(-1);
-  const revisionB = directoryB.split("-").at(-1);
+  const revisionA = directoryA.name.split("-").at(-1);
+  const revisionB = directoryB.name.split("-").at(-1);
 
   return revisionB - revisionA;
 }
@@ -71,7 +70,7 @@ const applicationNameMap = {
  * A fresh started NVDA instance `nvda` is provided to each test.
  */
 const nvdaTest = test.extend<{ nvda: typeof nvda }>({
-  nvda: async ({ browserName }, use) => {
+  nvda: async ({ browserName, page }, use) => {
     try {
       const application = applicationNameMap[browserName];
 
@@ -80,10 +79,14 @@ const nvdaTest = test.extend<{ nvda: typeof nvda }>({
       }
 
       await nvda.start();
-      await windowsActivate(application.path, application.name);
+      await page.goto("about:blank", { waitUntil: "load" });
 
       // eslint-disable-next-line no-constant-condition
-      while (true) {
+      let applicationSwitchRetryCount = 0;
+
+      while (applicationSwitchRetryCount < 10) {
+        applicationSwitchRetryCount++;
+
         await nvda.perform({
           keyCode: [WindowsKeyCodes.Tab],
           modifiers: [WindowsModifiers.Alt],
@@ -94,6 +97,20 @@ const nvdaTest = test.extend<{ nvda: typeof nvda }>({
         if (lastSpokenPhrase.includes(application.name)) {
           break;
         }
+      }
+
+      if (browserName === "chromium") {
+        let mainPageFocusRetryCount = 0;
+
+        // Get to the main page - sometimes focus can land on the address bar
+        while (!(await nvda.lastSpokenPhrase()).includes("document") && mainPageFocusRetryCount < 10) {
+          mainPageFocusRetryCount++;
+
+          await nvda.press("F6");
+        }
+      } else if (browserName === "firefox") {
+        // Force focus to somewhere in the web content
+        await page.locator("a").first().focus();
       }
 
       await use(nvda);

@@ -61,13 +61,6 @@ const executeCommandSequence = async ({
     const { mappedCommand, error } = mapCommand(rawCommand);
 
     console.log(`Performing command: "${rawCommand}"`);
-    console.log(
-      "Mapped to: ",
-      JSON.stringify({
-        keyCode: mappedCommand.keyCode.map((keyCode) => keyCode.symbol),
-        modifiers: mappedCommand.modifiers.map((modifier) => modifier.symbol),
-      })
-    );
 
     if (error) {
       annotate({
