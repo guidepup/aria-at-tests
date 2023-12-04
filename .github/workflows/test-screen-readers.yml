@@ -196,7 +196,7 @@ jobs:
           key: macos-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Run Tests
-        run: yarn test --config macos.config.ts -g "@macos @voiceOver *${{ matrix.spec }}*"
+        run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts -g "@macos @voiceOver *${{ matrix.spec }}*"
         continue-on-error: true
 
       - uses: actions/upload-artifact@v3
@@ -295,7 +295,7 @@ jobs:
           key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Run Tests
-        run: yarn test --config windows.config.ts -g "@windows @nvda *${{ matrix.spec }}*"
+        run: yarn test ./src/windowsNvda.spec.ts --config windows.config.ts -g "@windows @nvda *${{ matrix.spec }}*"
         continue-on-error: true
 
       - uses: actions/upload-artifact@v3
