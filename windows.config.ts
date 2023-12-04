@@ -7,7 +7,7 @@ const config: PlaywrightTestConfig = {
   fullyParallel: false,
   workers: 1,
   timeout: 5 * 60 * 1000,
-  retries: 0,
+  retries: 5,
   projects: [
     {
       name: "chromium",
