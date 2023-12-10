@@ -1,5 +1,6 @@
 import { platform, release } from "os";
 import { voTest as test } from "@guidepup/playwright";
+import { VoiceOver } from "@guidepup/guidepup";
 import { KeyCodes } from "@guidepup/guidepup/lib/macOS/KeyCodes";
 import { Modifiers } from "@guidepup/guidepup/lib/macOS/Modifiers";
 import { record } from "./record";
@@ -10,6 +11,7 @@ import { mapCommandToGuidepupKeys } from "./mapCommandToGuidepupKeys";
 import { annotate } from "./annotate";
 import { getTestDetails } from "./getTestDetails";
 import { getScreenReaderTests } from "./getScreenReaderTests";
+import { applicationNameMap } from "./applicationNameMap";
 
 const screenReaderName = "voiceover_macos";
 
@@ -37,9 +39,9 @@ const mapCommand = (
     const modifiers: Modifiers[] = [];
 
     for (const key of keys) {
-      if (Modifiers[key]) {
+      if (typeof Modifiers[key] !== "undefined") {
         modifiers.push(Modifiers[key]);
-      } else if (KeyCodes[key]) {
+      } else if (typeof KeyCodes[key] !== "undefined") {
         keyCodes.push(KeyCodes[key as keyof KeyCodes]);
       } else {
         return { error: true };
@@ -59,9 +61,9 @@ const mapCommand = (
   const modifiers: string[] = [];
 
   for (const key of keys) {
-    if (Modifiers[key]) {
+    if (typeof Modifiers[key] !== "undefined") {
       modifiers.push(key);
-    } else if (KeyCodes[key]) {
+    } else if (typeof KeyCodes[key] !== "undefined") {
       keyCodes.push(key);
     } else {
       return { error: true };
@@ -77,7 +79,15 @@ const mapCommand = (
   };
 };
 
-const executeCommandSequence = async ({ command, voiceOver }) => {
+const executeCommandSequence = async ({
+  browserName,
+  command,
+  voiceOver,
+}: {
+  browserName: string;
+  command: string;
+  voiceOver: VoiceOver;
+}) => {
   const rawCommands = command.split(",");
 
   for (const rawCommand of rawCommands) {
@@ -104,7 +114,9 @@ const executeCommandSequence = async ({ command, voiceOver }) => {
         ...mappedCommand.keyCode,
       ].join("+");
 
-      await voiceOver.press(keyboardString);
+      await voiceOver.press(keyboardString, {
+        application: applicationNameMap[browserName],
+      });
     }
 
     const lastSpokenPhrase = await voiceOver.lastSpokenPhrase();
@@ -158,6 +170,9 @@ const generateTestSuite = ({
           }
 
           await setup({
+            hasSetupScript: !!screenReaderTest.setupScript,
+            moveToSystemFocusCommand:
+              voiceOver.keyboardCommands.moveCursorToKeyboardFocus,
             page,
             testUrl,
             screenReader: voiceOver,
@@ -173,12 +188,12 @@ const generateTestSuite = ({
         });
 
         for (const command of screenReaderCommands) {
-          test(`Using command sequence '${command}'`, async ({ voiceOver }) => {
-            await executeCommandSequence({ command, voiceOver });
-
-            for (const assertion of assertions) {
-              await assert({ assertion, screenReader: voiceOver, test });
-            }
+          test(`Using command sequence '${command}'`, async ({
+            browserName,
+            voiceOver,
+          }) => {
+            await executeCommandSequence({ browserName, command, voiceOver });
+            await assert({ assertions, screenReader: voiceOver, test });
           });
         }
       });

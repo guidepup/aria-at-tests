@@ -30,7 +30,7 @@ export const getTestDetails = ({
 
   const testUrl = `https://aria-at.netlify.app/tests/${name}/${references.reference.replace(
     ".html",
-    `.${screenReaderTest.setupScript}`
+    screenReaderTest.setupScript ? `.${screenReaderTest.setupScript}` : ""
   )}`;
 
   return { screenReaderCommands, assertions, testUrl };

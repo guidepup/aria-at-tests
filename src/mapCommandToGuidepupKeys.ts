@@ -20,5 +20,6 @@ export const mapCommandToGuidepupKeys = (command: string) =>
     .replaceAll("opt", "option")
     .replaceAll("cmd", "command")
     .replaceAll("ins", "insert")
+    .replaceAll("esc", "escape")
     .split("_")
     .map((key) => toTitleCase(key));

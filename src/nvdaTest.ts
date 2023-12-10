@@ -1,16 +1,6 @@
 import { nvda, WindowsKeyCodes, WindowsModifiers } from "@guidepup/guidepup";
 import { test } from "@playwright/test";
-
-const applicationNameMap = {
-  chromium: "Chromium",
-  chrome: "Google Chrome",
-  "chrome-beta": "Google Chrome Beta",
-  msedge: "Microsoft Edge",
-  "msedge-beta": "Microsoft Edge Beta",
-  "msedge-dev": "Microsoft Edge Dev",
-  firefox: "Nightly",
-  webkit: "Playwright",
-};
+import { applicationNameMap } from "./applicationNameMap";
 
 /**
  * These tests extend the default Playwright environment that launches the

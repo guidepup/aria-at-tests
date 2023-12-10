@@ -31,9 +31,9 @@ const mapCommand = (
   const modifiers: ModifiersType[] = [];
 
   for (const key of keys) {
-    if (Modifiers[key]) {
+    if (typeof Modifiers[key] !== "undefined") {
       modifiers.push(Modifiers[key]);
-    } else if (KeyCodes[key]) {
+    } else if (typeof KeyCodes[key] !== "undefined") {
       keyCodes.push(KeyCodes[key]);
     } else {
       return { error: true };
@@ -60,7 +60,7 @@ const executeCommandSequence = async ({
   for (const rawCommand of rawCommands) {
     const { mappedCommand, error } = mapCommand(rawCommand);
 
-    console.log(`Performing command: "${rawCommand}"`);
+    console.log(`Performing command: "${rawCommand}"`, mappedCommand);
 
     if (error) {
       annotate({
@@ -124,6 +124,8 @@ const generateTestSuite = ({
           }
 
           await setup({
+            hasSetupScript: !!screenReaderTest.setupScript,
+            moveToSystemFocusCommand: nvda.keyboardCommands.moveToFocusObject,
             page,
             testUrl,
             screenReader: nvda,
@@ -141,10 +143,7 @@ const generateTestSuite = ({
         for (const command of screenReaderCommands) {
           test(`Using command sequence '${command}'`, async ({ nvda }) => {
             await executeCommandSequence({ command, nvda });
-
-            for (const assertion of assertions) {
-              await assert({ assertion, screenReader: nvda, test });
-            }
+            await assert({ assertions, screenReader: nvda, test });
           });
         }
       });
