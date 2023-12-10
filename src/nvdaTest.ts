@@ -1,66 +1,15 @@
-/* eslint-disable no-empty-pattern */
-import {
-  nvda,
-  WindowsKeyCodes,
-  WindowsModifiers,
-} from "@guidepup/guidepup";
-import { homedir } from "os";
-import { join } from "path";
-import { readdirSync } from "fs";
+import { nvda, WindowsKeyCodes, WindowsModifiers } from "@guidepup/guidepup";
 import { test } from "@playwright/test";
 
-const BROWSER_INSTALLATION_DIRECTORY = join(
-  homedir(),
-  "AppData",
-  "Local",
-  "ms-playwright"
-);
-
-const CHROMIUM_PATH = join("chrome-win", "chrome.exe");
-const FIREFOX_PATH = join("firefox", "firefox.exe");
-
-const directories = readdirSync(BROWSER_INSTALLATION_DIRECTORY, {
-  withFileTypes: true,
-}).filter((item) => item.isDirectory());
-
-const chromiumDirectory = directories
-  .filter((directory) => directory.name.startsWith("chromium"))
-  .sort(byLatestRevision)
-  .at(0)?.name;
-
-const firefoxDirectory = directories
-  .filter((directory) => directory.name.startsWith("firefox"))
-  .sort(byLatestRevision)
-  .at(0)?.name;
-
-function byLatestRevision(directoryA, directoryB) {
-  const revisionA = directoryA.name.split("-").at(-1);
-  const revisionB = directoryB.name.split("-").at(-1);
-
-  return revisionB - revisionA;
-}
-
 const applicationNameMap = {
-  chromium: chromiumDirectory
-    ? {
-        path: join(
-          BROWSER_INSTALLATION_DIRECTORY,
-          chromiumDirectory,
-          CHROMIUM_PATH
-        ),
-        name: "Chromium",
-      }
-    : null,
-  firefox: firefoxDirectory
-    ? {
-        path: join(
-          BROWSER_INSTALLATION_DIRECTORY,
-          firefoxDirectory,
-          FIREFOX_PATH
-        ),
-        name: "Nightly",
-      }
-    : null,
+  chromium: "Chromium",
+  chrome: "Google Chrome",
+  "chrome-beta": "Google Chrome Beta",
+  msedge: "Microsoft Edge",
+  "msedge-beta": "Microsoft Edge Beta",
+  "msedge-dev": "Microsoft Edge Dev",
+  firefox: "Nightly",
+  webkit: "Playwright",
 };
 
 /**
@@ -72,16 +21,15 @@ const applicationNameMap = {
 const nvdaTest = test.extend<{ nvda: typeof nvda }>({
   nvda: async ({ browserName, page }, use) => {
     try {
-      const application = applicationNameMap[browserName];
+      const applicationName = applicationNameMap[browserName];
 
-      if (!application) {
+      if (!applicationName) {
         throw new Error(`Browser ${browserName} is not installed.`);
       }
 
       await nvda.start();
       await page.goto("about:blank", { waitUntil: "load" });
 
-      // eslint-disable-next-line no-constant-condition
       let applicationSwitchRetryCount = 0;
 
       while (applicationSwitchRetryCount < 10) {
@@ -94,7 +42,7 @@ const nvdaTest = test.extend<{ nvda: typeof nvda }>({
 
         const lastSpokenPhrase = await nvda.lastSpokenPhrase();
 
-        if (lastSpokenPhrase.includes(application.name)) {
+        if (lastSpokenPhrase.includes(applicationName)) {
           break;
         }
       }
@@ -103,15 +51,24 @@ const nvdaTest = test.extend<{ nvda: typeof nvda }>({
         let mainPageFocusRetryCount = 0;
 
         // Get to the main page - sometimes focus can land on the address bar
-        while (!(await nvda.lastSpokenPhrase()).includes("document") && mainPageFocusRetryCount < 10) {
+        while (
+          !(await nvda.lastSpokenPhrase()).includes("document") &&
+          mainPageFocusRetryCount < 10
+        ) {
           mainPageFocusRetryCount++;
 
           await nvda.press("F6");
         }
       } else if (browserName === "firefox") {
         // Force focus to somewhere in the web content
-        await page.locator("a").first().focus();
+        await page.locator("body").first().focus();
       }
+
+      // Make sure not in focus mode
+      await nvda.perform(nvda.keyboardCommands.exitFocusMode);
+
+      // Clear the log so clean for the actual test!
+      await nvda.clearSpokenPhraseLog();
 
       await use(nvda);
     } finally {
