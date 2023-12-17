@@ -18,6 +18,12 @@ Then install the project dependencies and run the Playwright suite against the A
 
 ```console
 yarn install --frozen-lockfile
-yarn browsers
-yarn test
+yarn test:install
+yarn test:generate
+
+# Run against MacOS VoiceOver Suite
+yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts
+
+# Run against Windows NVDA Suite
+yarn test ./src/windowsNvda.spec.ts --config windows.config.ts
 ```

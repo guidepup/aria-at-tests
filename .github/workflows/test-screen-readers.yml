@@ -118,13 +118,13 @@ jobs:
         run: yarn test:generate
 
   test-voiceover:
-    name: Playwright VoiceOver Tests (${{ matrix.spec }})
+    name: Playwright VoiceOver Tests (${{ matrix.shard }})
     needs: macos-install
     runs-on: macos-12
     strategy:
       fail-fast: false
       matrix:
-        spec:
+        shard:
           [
             1/30,
             2/30,
@@ -192,14 +192,14 @@ jobs:
           key: macos-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Run Tests
-        run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts -g "@macos @voiceOver *${{ matrix.spec }}*"
+        run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shard }}
         continue-on-error: true
 
       - uses: actions/upload-artifact@v3
         if: always()
         continue-on-error: true
         with:
-          name: artifacts-macos-voiceover-${{ matrix.spec }}
+          name: artifacts-macos-voiceover-${{ matrix.shard }}
           path: |
             ./test-results
             ./recordings
@@ -212,13 +212,13 @@ jobs:
           path: blob-report
 
   test-nvda:
-    name: Playwright NVDA Tests (${{ matrix.spec }})
+    name: Playwright NVDA Tests (${{ matrix.shard }})
     needs: windows-install
     runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
-        spec:
+        shard:
           [
             1/30,
             2/30,
@@ -286,14 +286,14 @@ jobs:
           key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Run Tests
-        run: yarn test ./src/windowsNvda.spec.ts --config windows.config.ts -g "@windows @nvda *${{ matrix.spec }}*"
+        run: yarn test ./src/windowsNvda.spec.ts --config windows.config.ts --shard ${{ matrix.shard }}
         continue-on-error: true
 
       - uses: actions/upload-artifact@v3
         if: always()
         continue-on-error: true
         with:
-          name: artifacts-windows-nvda-${{ matrix.spec }}
+          name: artifacts-windows-nvda-${{ matrix.shard }}
           path: |
             ./test-results
             ./recordings
