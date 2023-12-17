@@ -7,14 +7,14 @@ const config: PlaywrightTestConfig = {
   fullyParallel: false,
   workers: 1,
   timeout: 5 * 60 * 1000,
-  retries: 5,
+  retries: 2,
   projects: [
     {
       name: "webkit",
       use: { ...devices["Desktop Safari"], headless: false },
     },
   ],
-  reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
+  reporter: process.env.CI ? [["github"], ["blob"]] : "list",
 };
 
 export default config;

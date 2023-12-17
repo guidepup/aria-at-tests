@@ -56,6 +56,12 @@ const RE_ALLOW_INTERMEDIARY_WORDS = "(?:\\s+(?![.\\s])[\\w,'\\x2d]+)*\\s+";
  * Explanation of the regular expression:
  *
  * \(           // Matches an opening parenthesis
+ * '            // Matches an opening single quote
+ *   ([^']+)    // Capturing group for one or more characters that are not a single quote
+ * '            // Matches a closing single quote
+ * \)           // Matches a closing parenthesis
+ * |            // OR operator to match the following alternative
+ * \(           // Matches an opening parenthesis
  *   ([^)]+)    // Capturing group for one or more characters that are not closing parenthesis
  * \)           // Matches a closing parenthesis
  * |            // OR operator to match the following alternative
@@ -63,7 +69,7 @@ const RE_ALLOW_INTERMEDIARY_WORDS = "(?:\\s+(?![.\\s])[\\w,'\\x2d]+)*\\s+";
  *   ([^']+)    // Capturing group for one or more characters that are not a single quote
  * '            // Matches a closing single quote
  */
-const RE_MATCH_TARGET_PHRASE = /\([^)]*\)|'([^']+)'/;
+const RE_MATCH_TARGET_PHRASE = /\('([^']+)'\)|\(([^)]+)\)|'([^']+)'/;
 
 // Some special cases where screen readers introduce spaces into role names
 // which typically still convey the role.
@@ -84,7 +90,8 @@ export async function assert({
   const spokenPhraseLog = await screenReader.spokenPhraseLog();
 
   for (const assertion of assertions) {
-    const phrase = assertion.match(RE_MATCH_TARGET_PHRASE)?.[1]?.trim();
+    const matches = assertion.match(RE_MATCH_TARGET_PHRASE);
+    const phrase = (matches?.at(1) ?? matches?.at(2) ?? matches?.at(3))?.trim();
 
     if (!phrase) {
       annotate({
@@ -92,7 +99,7 @@ export async function assert({
         warning: `Unable to perform assertion: "${assertion}"`,
       });
 
-      return;
+      continue;
     }
 
     const phraseRegex = phrase

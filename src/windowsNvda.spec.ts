@@ -12,6 +12,9 @@ import { getTestDetails } from "./getTestDetails";
 import { getScreenReaderTests } from "./getScreenReaderTests";
 import { NVDA } from "@guidepup/guidepup";
 
+// Allow sharding across describe blocks
+test.describe.configure({ mode: "parallel" });
+
 const screenReaderName = "nvda";
 
 type KeyCodesType = (typeof KeyCodes)[keyof typeof KeyCodes];

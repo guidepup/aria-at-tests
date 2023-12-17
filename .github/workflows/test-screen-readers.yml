@@ -126,40 +126,36 @@ jobs:
       matrix:
         spec:
           [
-            "Combobox with Both List and Inline Autocomplete Example",
-            "Rating Slider",
-            "Link Example 2",
-            "Form Landmark",
-            "Horizontal Multi-Thumb Slider",
-            "Select Only Combobox Example",
-            "Navigation Menu Button",
-            "Action Menu Button Example",
-            "Alert Example",
-            "Disclosure Navigation Menu Example",
-            "Complementary Landmark",
-            "Radio Group Example Using Roving tabindex",
-            "Link Example 1",
-            "Checkbox Example",
-            "Media Seek Slider",
-            "Date Picker Spin Button Example",
-            "Data Grid Example 1: Minimal Data Grid",
-            "Link Example 3",
-            "Vertical Temperature Slider",
-            "Editor Menubar Example",
-            "Switch Example",
-            "Contentinfo Landmark",
-            "Action Menu Button Example Using aria-activedescendant",
-            "Command Button Example",
-            "Disclosure of Answers to Frequently Asked Questions Example",
-            "Breadcrumb Example",
-            "Main Landmark",
-            "Meter",
-            "Radio Group Example Using aria-activedescendant",
-            "Modal Dialog Example",
-            "Banner Landmark",
-            "Toggle Button",
-            "Color Viewer Slider",
-            "Tabs with Manual Activation",
+            1/30,
+            2/30,
+            3/30,
+            4/30,
+            5/30,
+            6/30,
+            7/30,
+            8/30,
+            9/30,
+            10/30,
+            11/30,
+            12/30,
+            13/30,
+            14/30,
+            15/30,
+            16/30,
+            17/30,
+            18/30,
+            19/30,
+            20/30,
+            21/30,
+            22/30,
+            23/30,
+            24/30,
+            25/30,
+            26/30,
+            27/30,
+            28/30,
+            29/30,
+            30/30,
           ]
 
     steps:
@@ -212,9 +208,8 @@ jobs:
         if: always()
         continue-on-error: true
         with:
-          name: playwright-report-macos-voiceover-${{ matrix.spec }}
-          path: |
-            ./playwright-report
+          name: all-blob-reports
+          path: blob-report
 
   test-nvda:
     name: Playwright NVDA Tests (${{ matrix.spec }})
@@ -225,40 +220,36 @@ jobs:
       matrix:
         spec:
           [
-            "Combobox with Both List and Inline Autocomplete Example",
-            "Rating Slider",
-            "Link Example 2",
-            "Form Landmark",
-            "Horizontal Multi-Thumb Slider",
-            "Select Only Combobox Example",
-            "Navigation Menu Button",
-            "Action Menu Button Example",
-            "Alert Example",
-            "Disclosure Navigation Menu Example",
-            "Complementary Landmark",
-            "Radio Group Example Using Roving tabindex",
-            "Link Example 1",
-            "Checkbox Example",
-            "Media Seek Slider",
-            "Date Picker Spin Button Example",
-            "Data Grid Example 1: Minimal Data Grid",
-            "Link Example 3",
-            "Vertical Temperature Slider",
-            "Editor Menubar Example",
-            "Switch Example",
-            "Contentinfo Landmark",
-            "Action Menu Button Example Using aria-activedescendant",
-            "Command Button Example",
-            "Disclosure of Answers to Frequently Asked Questions Example",
-            "Breadcrumb Example",
-            "Main Landmark",
-            "Meter",
-            "Radio Group Example Using aria-activedescendant",
-            "Modal Dialog Example",
-            "Banner Landmark",
-            "Toggle Button",
-            "Color Viewer Slider",
-            "Tabs with Manual Activation",
+            1/30,
+            2/30,
+            3/30,
+            4/30,
+            5/30,
+            6/30,
+            7/30,
+            8/30,
+            9/30,
+            10/30,
+            11/30,
+            12/30,
+            13/30,
+            14/30,
+            15/30,
+            16/30,
+            17/30,
+            18/30,
+            19/30,
+            20/30,
+            21/30,
+            22/30,
+            23/30,
+            24/30,
+            25/30,
+            26/30,
+            27/30,
+            28/30,
+            29/30,
+            30/30,
           ]
 
     steps:
@@ -311,9 +302,8 @@ jobs:
         if: always()
         continue-on-error: true
         with:
-          name: playwright-report-windows-nvda-${{ matrix.spec }}
-          path: |
-            ./playwright-report
+          name: all-blob-reports
+          path: blob-report
 
   publish-html-report:
     name: Publish to GitHub Pages
@@ -330,11 +320,12 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       - uses: actions/download-artifact@v3
         with:
-          path: ./playwright-report
+          name: all-blob-reports
+          path: all-blob-reports
 
       - name: Cache node_modules
         uses: actions/cache@v3
@@ -344,8 +335,11 @@ jobs:
             node_modules
           key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
-      - name: Create Test Report
-        run: yarn test:report
+      - name: Create Allure Test Results
+        run: npx playwright merge-reports --reporter allure-playwright ./all-blob-reports
+
+      - name: Create Allure Test Report
+        run: npx allure generate ./html-report --clean
 
       - name: Setup Pages
         uses: actions/configure-pages@v3

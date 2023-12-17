@@ -13,6 +13,9 @@ import { getTestDetails } from "./getTestDetails";
 import { getScreenReaderTests } from "./getScreenReaderTests";
 import { applicationNameMap } from "./applicationNameMap";
 
+// Allow sharding across describe blocks
+test.describe.configure({ mode: "parallel" });
+
 const screenReaderName = "voiceover_macos";
 
 const mapCommand = (
