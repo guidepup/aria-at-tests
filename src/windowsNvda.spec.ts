@@ -1,5 +1,6 @@
 import { platform, release } from "os";
 import { nvdaTest as test } from "./nvdaTest";
+import { NVDA } from "@guidepup/guidepup";
 import { KeyCodes } from "@guidepup/guidepup/lib/windows/KeyCodes";
 import { Modifiers } from "@guidepup/guidepup/lib/windows/Modifiers";
 import { record } from "./record";
@@ -10,7 +11,8 @@ import { mapCommandToGuidepupKeys } from "./mapCommandToGuidepupKeys";
 import { annotate } from "./annotate";
 import { getTestDetails } from "./getTestDetails";
 import { getScreenReaderTests } from "./getScreenReaderTests";
-import { NVDA } from "@guidepup/guidepup";
+import { setAllureMetadata } from "./setAllureMetadata";
+import { setAllureRecording } from "./setAllureRecording";
 
 // Allow sharding across describe blocks
 test.describe.configure({ mode: "parallel" });
@@ -89,14 +91,16 @@ const generateTestSuite = ({
   tests,
 }: TestSuite) => {
   const screenReaderTests = getScreenReaderTests({ screenReaderName, tests });
+  const osPlatform = platform();
+  const osRelease = release();
 
   test.describe(`@windows @nvda ${references.title}`, () => {
     test.beforeEach(({ browserName, browser }) => {
       console.table({
-        osPlatform: platform(),
-        osRelease: release(),
         browserName,
         browserVersion: browser.version(),
+        osPlatform,
+        osRelease,
       });
 
       console.table(references);
@@ -112,7 +116,7 @@ const generateTestSuite = ({
       });
 
       test.describe(screenReaderTest.title, () => {
-        let stopRecording: () => void;
+        let stopRecording: () => string;
 
         test.beforeEach(async ({ page, nvda }) => {
           console.table(screenReaderTest);
@@ -135,18 +139,34 @@ const generateTestSuite = ({
           });
         });
 
-        test.afterEach(() => {
-          try {
-            stopRecording?.();
-          } catch {
-            annotate({ test, warning: "Screen recording failed." });
-          }
-        });
-
         for (const command of screenReaderCommands) {
-          test(`Using command sequence '${command}'`, async ({ nvda }) => {
+          test(`Using command sequence '${command}'`, async ({
+            browser,
+            browserName,
+            nvda,
+          }) => {
+            await setAllureMetadata({
+              browserName,
+              browserVersion: browser.version(),
+              osPlatform,
+              osRelease,
+              references,
+              screenReaderTest,
+              testUrl,
+            });
             await executeCommandSequence({ command, nvda });
             await assert({ assertions, screenReader: nvda, test });
+
+            try {
+              const recordingFilePath = stopRecording?.();
+
+              await setAllureRecording({
+                osPlatform,
+                recordingFilePath,
+              });
+            } catch {
+              annotate({ test, warning: "Screen recording failed." });
+            }
           });
         }
       });

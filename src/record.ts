@@ -9,30 +9,48 @@ export function record({
 }: {
   screenReaderName: string;
   test: typeof playwrightTest;
-}): () => void {
+}): () => string {
   const { title, retry } = test.info();
 
-  const directoryPath = title
+  const recordingDirectoryPath = title
     .replaceAll(/\s+/g, "_")
     .replaceAll(/[\W_]+/g, "_")
     .toLowerCase();
 
   const platformName = platform();
-  const fileName = `test_${platformName}_${release()}_${screenReaderName}_attempt_${retry}.mov`;
-  const filePath = join("./recordings/", directoryPath, fileName);
+  const recordingFileName = `test_${platformName}_${release()}_${screenReaderName}_attempt_${retry}.mov`;
+  const recordingFilePath = join(
+    "./recordings/",
+    recordingDirectoryPath,
+    recordingFileName
+  );
 
-  console.table({ directoryPath, fileName });
+  console.table({ recordingDirectoryPath, recordingFileName });
 
   switch (platformName) {
     case "darwin": {
-      return macOSRecord(filePath);
+      const stopRecording = macOSRecord(recordingFilePath);
+
+      return () => {
+        stopRecording();
+
+        return recordingFilePath;
+      };
     }
     case "win32": {
-      return windowsRecord(filePath);
+      const stopRecording = windowsRecord(recordingFilePath);
+
+      return () => {
+        stopRecording();
+
+        return recordingFilePath;
+      };
     }
     default: {
       return () => {
         // Not Supported
+
+        return "";
       };
     }
   }

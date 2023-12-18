@@ -14,7 +14,9 @@ const config: PlaywrightTestConfig = {
       use: { ...devices["Desktop Chrome"], headless: false },
     },
   ],
-  reporter: process.env.CI ? [["github"], ["blob"]] : "list",
+  reporter: process.env.CI
+    ? [["github"], ["allure-playwright", { outputDir: "allure-results" }]]
+    : "list",
 };
 
 export default config;

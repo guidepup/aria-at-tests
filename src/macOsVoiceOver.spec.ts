@@ -12,6 +12,8 @@ import { annotate } from "./annotate";
 import { getTestDetails } from "./getTestDetails";
 import { getScreenReaderTests } from "./getScreenReaderTests";
 import { applicationNameMap } from "./applicationNameMap";
+import { setAllureMetadata } from "./setAllureMetadata";
+import { setAllureRecording } from "./setAllureRecording";
 
 // Allow sharding across describe blocks
 test.describe.configure({ mode: "parallel" });
@@ -135,14 +137,16 @@ const generateTestSuite = ({
   tests,
 }: TestSuite) => {
   const screenReaderTests = getScreenReaderTests({ screenReaderName, tests });
+  const osPlatform = platform();
+  const osRelease = release();
 
   test.describe(`@macos @voiceOver ${references.title}`, () => {
     test.beforeEach(({ browserName, browser }) => {
       console.table({
-        osPlatform: platform(),
-        osRelease: release(),
         browserName,
         browserVersion: browser.version(),
+        osPlatform,
+        osRelease,
       });
 
       console.table(references);
@@ -158,7 +162,7 @@ const generateTestSuite = ({
       });
 
       test.describe(screenReaderTest.title, () => {
-        let stopRecording: () => void;
+        let stopRecording: () => string;
 
         test.beforeEach(async ({ page, voiceOver }) => {
           console.table(screenReaderTest);
@@ -182,21 +186,34 @@ const generateTestSuite = ({
           });
         });
 
-        test.afterEach(() => {
-          try {
-            stopRecording?.();
-          } catch {
-            annotate({ test, warning: "Screen recording failed." });
-          }
-        });
-
         for (const command of screenReaderCommands) {
           test(`Using command sequence '${command}'`, async ({
+            browser,
             browserName,
             voiceOver,
           }) => {
+            await setAllureMetadata({
+              browserName,
+              browserVersion: browser.version(),
+              osPlatform,
+              osRelease,
+              references,
+              screenReaderTest,
+              testUrl,
+            });
             await executeCommandSequence({ browserName, command, voiceOver });
             await assert({ assertions, screenReader: voiceOver, test });
+
+            try {
+              const recordingFilePath = stopRecording?.();
+
+              await setAllureRecording({
+                osPlatform,
+                recordingFilePath,
+              });
+            } catch {
+              annotate({ test, warning: "Screen recording failed." });
+            }
           });
         }
       });
