@@ -7,12 +7,18 @@ import { annotate } from "./annotate";
  * Explanation of the regular expression:
  *
  * stringToEscape.replace(
- *   /[|\\{}()[\]^$+*?.]/g,  // Match any of the special characters: | \ {} () [] ^ $ + * ? .
- *   "\\$&"                  // Replace with the escaped version of the matched character
+ *   /[|\\{}()[\]^$+*?.]/g,      // Match any of the special characters: | \ {} () [] ^ $ + * ? .
+ *   "\\$&"                      // Replace with the escaped version of the matched character
  * ).replace(
- *   /-/g,                   // Match hyphens
- *   "\\x2d"                 // Replace with the escaped version of hyphen using hexadecimal representation
- * );
+ *   /-/g,                       // Match hyphens
+ *   "(?:\\x2d|\\s)"             // Replace with non-capturing group that matches the escaped version of hyphen using hexadecimal representation or a white-space
+ * ).replace(
+ *   /\//g,                      // Match forward slash: /
+ *   "(?:\\/|\\s\\bslash\\b\\s)" // Replace with non-capturing group that matches the word "slash"
+ * ).replace(
+ *   /graphic/g,                 // Match the word "graphic"
+ *   "(?:graphic|image)"         // Replace with non-capturing group that matches the word "graphic" of "image"
+ * )
  *
  * This regex is used to escape special characters in a given string, making them safe
  * to be used as literals in a regular expression pattern. The first replace() call
@@ -22,7 +28,12 @@ import { annotate } from "./annotate";
  * REF: https://github.com/sindresorhus/escape-string-regexp/blob/main/index.js
  */
 const escapeStringForRegex = (stringToEscape: string): string =>
-  stringToEscape.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&").replace(/-/g, "\\x2d");
+  stringToEscape
+    .replace(/[|\\{}()[\]^$+*?.]/g, "\\$&")
+    .replace(/-/g, "(?:\\x2d|\\s)")
+    .replace(/\//g, "(?:\\/|\\s\\bslash\\b\\s)")
+    .replace(/graphic/g, "(?:graphic|image)")
+    .replace(/mixed/g, "(?:mixed|half\\schecked)");
 
 /**
  * Explanation of the regular expression:
@@ -76,7 +87,8 @@ const RE_MATCH_TARGET_PHRASE = /\('([^']+)'\)|\(([^)]+)\)|'([^']+)'/;
 const withRoleReplacements = (spokenPhrase: string): string =>
   spokenPhrase
     .replaceAll(/combo box/gi, "combobox")
-    .replaceAll(/menu bar/gi, "menubar");
+    .replaceAll(/menu bar/gi, "menubar")
+    .replaceAll(/check box/gi, "checkbox");
 
 export async function assert({
   assertions,

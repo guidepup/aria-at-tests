@@ -13,6 +13,7 @@ import { getTestDetails } from "./getTestDetails";
 import { getScreenReaderTests } from "./getScreenReaderTests";
 import { setAllureMetadata } from "./setAllureMetadata";
 import { setAllureRecording } from "./setAllureRecording";
+import { Test } from "./types";
 
 // Allow sharding across describe blocks
 test.describe.configure({ mode: "parallel" });
@@ -21,6 +22,23 @@ const screenReaderName = "nvda";
 
 type KeyCodesType = (typeof KeyCodes)[keyof typeof KeyCodes];
 type ModifiersType = (typeof Modifiers)[keyof typeof Modifiers];
+
+const setMode = async ({
+  mode,
+  screenReader,
+}: {
+  mode: Test["mode"];
+  screenReader: NVDA;
+}) => {
+  if (mode === "interaction") {
+    await screenReader.perform(screenReader.keyboardCommands.exitFocusMode);
+    await screenReader.perform(
+      screenReader.keyboardCommands.toggleBetweenBrowseAndFocusMode
+    );
+  } else {
+    await screenReader.perform(screenReader.keyboardCommands.exitFocusMode);
+  }
+};
 
 const mapCommand = (
   command: string
@@ -65,7 +83,7 @@ const executeCommandSequence = async ({
   for (const rawCommand of rawCommands) {
     const { mappedCommand, error } = mapCommand(rawCommand);
 
-    console.log(`Performing command: "${rawCommand}"`, mappedCommand);
+    console.log(`Performing command: "${rawCommand}"`);
 
     if (error) {
       annotate({
@@ -133,9 +151,11 @@ const generateTestSuite = ({
           await setup({
             hasSetupScript: !!screenReaderTest.setupScript,
             moveToSystemFocusCommand: nvda.keyboardCommands.moveToFocusObject,
+            mode: screenReaderTest.mode,
             page,
-            testUrl,
             screenReader: nvda,
+            setMode,
+            testUrl,
           });
         });
 

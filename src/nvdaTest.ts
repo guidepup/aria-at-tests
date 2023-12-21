@@ -17,7 +17,31 @@ const nvdaTest = test.extend<{ nvda: typeof nvda }>({
         throw new Error(`Browser ${browserName} is not installed.`);
       }
 
-      await nvda.start();
+      let nvdaStartRetryCount = 0;
+      let error: Error;
+
+      while (nvdaStartRetryCount < 3) {
+        nvdaStartRetryCount++;
+
+        try {
+          await nvda.start();
+
+          break;
+        } catch (e) {
+          error = e;
+
+          try {
+            await nvda.stop();
+          } catch {
+            // swallow error
+          }
+        }
+
+        if (nvdaStartRetryCount === 3) {
+          throw error;
+        }
+      }
+
       await page.goto("about:blank", { waitUntil: "load" });
 
       let applicationSwitchRetryCount = 0;

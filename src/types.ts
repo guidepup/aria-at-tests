@@ -1,7 +1,7 @@
 export interface Command {
   testId: string;
   task: string;
-  mode: string;
+  mode: "reading" | "interaction";
   at: string;
   commandA: string;
   commandB: string;
@@ -34,7 +34,7 @@ export interface Test {
   testId: string;
   title: string;
   appliesTo: string;
-  mode: string;
+  mode: "reading" | "interaction";
   task: string;
   setupScript: string;
   setupScriptDescription: string;

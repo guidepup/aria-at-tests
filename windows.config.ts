@@ -7,11 +7,15 @@ const config: PlaywrightTestConfig = {
   fullyParallel: false,
   workers: 1,
   timeout: 5 * 60 * 1000,
-  retries: 2,
+  retries: 1,
   projects: [
     {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"], headless: false, video: "on" },
+    },
+    {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"], headless: false },
+      use: { ...devices["Desktop Chrome"], headless: false, video: "on" },
     },
   ],
   reporter: process.env.CI

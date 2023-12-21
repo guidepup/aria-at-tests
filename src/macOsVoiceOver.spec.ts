@@ -178,11 +178,13 @@ const generateTestSuite = ({
 
           await setup({
             hasSetupScript: !!screenReaderTest.setupScript,
+            mode: screenReaderTest.mode,
             moveToSystemFocusCommand:
               voiceOver.keyboardCommands.moveCursorToKeyboardFocus,
             page,
-            testUrl,
             screenReader: voiceOver,
+            setMode: () => {},
+            testUrl,
           });
         });
 
