@@ -196,7 +196,7 @@ jobs:
         continue-on-error: true
 
       - name: Archive Playwright Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
         with:
@@ -206,7 +206,7 @@ jobs:
             ./recordings
 
       - name: Archive Allure Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
         with:
@@ -292,7 +292,7 @@ jobs:
         continue-on-error: true
 
       - name: Archive Playwright Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
         with:
@@ -302,7 +302,7 @@ jobs:
             ./recordings
 
       - name: Archive Allure Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
         with:
@@ -318,6 +318,10 @@ jobs:
       name: ${{ github.head_ref || github.ref_name }}-report
       url: ${{ steps.deploy-pages.outputs.page_url }}
     steps:
+      - name: Check file space
+        run: |
+          df -h
+    
       - name: Remove large packages
         run: |
           sudo apt-get purge -y \
@@ -343,6 +347,10 @@ jobs:
           remove-codeql: "true"
           remove-docker-images: "true"
 
+      - name: Check file space
+        run: |
+          df -h
+
       - uses: actions/checkout@v3
         with:
           submodules: recursive
@@ -351,9 +359,14 @@ jobs:
         with:
           node-version: 20
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
+          pattern: allure-results-*
           path: ./allure-results
+
+      - name: Check file space
+        run: |
+          df -h
 
       - name: Move Allure results into one directory
         run: |
@@ -379,8 +392,14 @@ jobs:
           key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Create Allure Test Report
-        run: npx allure generate ./allure-results-final --clean -o allure-report
-        working-directory: ./allure-results
+        run: npx allure generate ./allure-results/allure-results-final --clean -o allure-report
+
+      - name: Cleanup Downloads
+        run: rm -rf ./allure-results || true
+
+      - name: Check file space
+        run: |
+          df -h
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
@@ -389,7 +408,7 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           name: allure-report
-          path: ./allure-results/allure-report
+          path: ./allure-report
 
       - name: GitHub Pages Deployment
         id: deploy-pages
