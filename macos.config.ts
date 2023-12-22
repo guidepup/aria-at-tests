@@ -11,15 +11,15 @@ const config: PlaywrightTestConfig = {
   projects: [
     {
       name: "webkit",
-      use: { ...devices["Desktop Safari"], headless: false, video: "on" },
+      use: { ...devices["Desktop Safari"], headless: false },
     },
     {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"], headless: false, video: "on" },
+      use: { ...devices["Desktop Firefox"], headless: false },
     },
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"], headless: false, video: "on" },
+      use: { ...devices["Desktop Chrome"], headless: false },
     },
   ],
   reporter: process.env.CI

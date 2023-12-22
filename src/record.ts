@@ -18,17 +18,18 @@ export function record({
     .toLowerCase();
 
   const platformName = platform();
-  const recordingFileName = `test_${platformName}_${release()}_${screenReaderName}_attempt_${retry}.mov`;
-  const recordingFilePath = join(
-    "./recordings/",
-    recordingDirectoryPath,
-    recordingFileName
-  );
-
-  console.table({ recordingDirectoryPath, recordingFileName });
 
   switch (platformName) {
     case "darwin": {
+      const recordingFileName = `test_${platformName}_${release()}_${screenReaderName}_attempt_${retry}.mov`;
+      const recordingFilePath = join(
+        "./recordings/",
+        recordingDirectoryPath,
+        recordingFileName
+      );
+
+      console.table({ recordingDirectoryPath, recordingFileName });
+
       const stopRecording = macOSRecord(recordingFilePath);
 
       return () => {
@@ -38,6 +39,15 @@ export function record({
       };
     }
     case "win32": {
+      const recordingFileName = `test_${platformName}_${release()}_${screenReaderName}_attempt_${retry}.mp4`;
+      const recordingFilePath = join(
+        "./recordings/",
+        recordingDirectoryPath,
+        recordingFileName
+      );
+
+      console.table({ recordingDirectoryPath, recordingFileName });
+
       const stopRecording = windowsRecord(recordingFilePath);
 
       return () => {
