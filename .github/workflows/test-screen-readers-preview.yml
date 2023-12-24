@@ -1,7 +1,7 @@
-name: Test Screen Readers
+name: Test Screen Readers Preview
 
 on:
-  push:
+  pull_request:
     branches: [main]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -16,7 +16,7 @@ permissions:
 
 # Allow one concurrent deployment
 concurrency:
-  group: "deployment"
+  group: "preview"
   cancel-in-progress: true
 
 jobs:
@@ -116,46 +116,14 @@ jobs:
         if: steps.cache-windows-test-suites.outputs.cache-hit != 'true'
         run: yarn test:generate
 
-  test-voiceover:
-    name: Playwright VoiceOver Tests (${{ matrix.shardIndex }})
+  test-voiceover-reduced:
+    name: Playwright VoiceOver Reduced Tests (${{ matrix.shardIndex }})
     needs: macos-install
     runs-on: macos-12
     strategy:
       fail-fast: false
       matrix:
-        shardIndex:
-          [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
-            24,
-            25,
-            26,
-            27,
-            28,
-            29,
-            30,
-          ]
+        shardIndex: [1]
 
     steps:
       - uses: actions/checkout@v3
@@ -191,7 +159,7 @@ jobs:
           key: macos-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Run Tests
-        run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shardIndex }}/30
+        run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shardIndex }}/2000
         continue-on-error: true
 
       - name: Archive Playwright Artifacts
@@ -212,46 +180,14 @@ jobs:
           name: allure-results-macos-voiceover-${{ matrix.shardIndex }}
           path: ./allure-results
 
-  test-nvda:
-    name: Playwright NVDA Tests (${{ matrix.shardIndex }})
+  test-nvda-reduced:
+    name: Playwright NVDA Reduced Tests (${{ matrix.shardIndex }})
     needs: windows-install
     runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
-        shardIndex:
-          [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
-            24,
-            25,
-            26,
-            27,
-            28,
-            29,
-            30,
-          ]
+        shardIndex: [1]
 
     steps:
       - uses: actions/checkout@v3
@@ -287,7 +223,7 @@ jobs:
           key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Run Tests
-        run: yarn test ./src/windowsNvda.spec.ts --config windows.config.ts --shard ${{ matrix.shardIndex }}/30
+        run: yarn test ./src/windowsNvda.spec.ts --config windows.config.ts --shard ${{ matrix.shardIndex }}/2000
         continue-on-error: true
 
       - name: Archive Playwright Artifacts
@@ -309,13 +245,10 @@ jobs:
           path: ./allure-results
 
   publish-html-report:
-    name: Publish to Vercel
+    name: Publish Preview to Vercel
     if: always()
-    needs: [test-voiceover, test-nvda]
+    needs: [test-voiceover-reduced, test-nvda-reduced]
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.head_ref || github.ref_name }}-report
-      url: ${{ steps.vercel-action.outputs.preview-url }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -330,7 +263,7 @@ jobs:
         id: deployment
         with:
           step: start
-          env: production
+          env: preview
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check file space
@@ -387,8 +320,8 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          github-comment: false
-          vercel-args: "--prod"
+          github-comment: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           working-directory: allure-report
 
       - name: Update Deployment Status - Finish
