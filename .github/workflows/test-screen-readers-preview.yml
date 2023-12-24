@@ -158,7 +158,7 @@ jobs:
           key: macos-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Run Tests
-        run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shardIndex }}/1000
+        run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shardIndex }}/2000
         continue-on-error: true
 
       - name: Archive Playwright Artifacts
@@ -222,7 +222,7 @@ jobs:
           key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Run Tests
-        run: yarn test ./src/windowsNvda.spec.ts --config windows.config.ts --shard ${{ matrix.shardIndex }}/1000
+        run: yarn test ./src/windowsNvda.spec.ts --config windows.config.ts --shard ${{ matrix.shardIndex }}/2000
         continue-on-error: true
 
       - name: Archive Playwright Artifacts
@@ -252,14 +252,6 @@ jobs:
       name: ${{ github.head_ref || github.ref_name }}-report
       url: ${{ steps.deploy-pages.outputs.page_url }}
     steps:
-      - name: Update Deployment Status - Start
-        uses: bobheadxi/deployments@v1
-        id: deployment
-        with:
-          step: start
-          token: ${{ secrets.GITHUB_TOKEN }}
-          env: Production
-
       - uses: actions/checkout@v3
         with:
           submodules: recursive
@@ -267,6 +259,14 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
+
+      - name: Update Deployment Status - Start
+        uses: bobheadxi/deployments@v1
+        id: deployment
+        with:
+          step: start
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: Preview
 
       - name: Check file space
         run: |
@@ -328,5 +328,6 @@ jobs:
           step: finish
           token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status }}
-          env: ${{ steps.deployment.outputs.env }}
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          env: ${{ steps.deployment.outputs.env }}
+          env_url: ${{ steps.vercel-action.outputs.preview-url }}
