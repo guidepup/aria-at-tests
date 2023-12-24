@@ -366,10 +366,15 @@ jobs:
           key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Create Allure Test Report
-        run: npx allure generate ./allure-results/allure-results-final --clean -o allure-report
+        run: npx allure generate ./allure-results/allure-results-final --clean -o ./allure-report
 
       - name: Cleanup Downloads
         run: rm -rf ./allure-results || true
+
+      - name: Log Directory Structure
+        run: |
+          ls -la ./
+          ls -la ./allure-report
 
       - name: Check file space
         run: |
@@ -384,7 +389,6 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           github-comment: false
           vercel-args: "--prod"
-          working-directory: allure-report
 
       - name: Update Deployment Status - Finish
         uses: bobheadxi/deployments@v1
