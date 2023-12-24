@@ -12,7 +12,7 @@ export function record({
 }): () => string {
   const { title, retry } = test.info();
 
-  const recordingDirectoryPath = title
+  const sanitizedTitle = title
     .replaceAll(/\s+/g, "_")
     .replaceAll(/[\W_]+/g, "_")
     .toLowerCase();
@@ -21,14 +21,10 @@ export function record({
 
   switch (platformName) {
     case "darwin": {
-      const recordingFileName = `test_${platformName}_${release()}_${screenReaderName}_attempt_${retry}.mov`;
-      const recordingFilePath = join(
-        "./recordings/",
-        recordingDirectoryPath,
-        recordingFileName
-      );
+      const recordingFileName = `test_${platformName}_${release()}_${screenReaderName}_${sanitizedTitle}_attempt_${retry}.mov`;
+      const recordingFilePath = join("./recordings/", recordingFileName);
 
-      console.table({ recordingDirectoryPath, recordingFileName });
+      console.table({ recordingFileName });
 
       const stopRecording = macOSRecord(recordingFilePath);
 
@@ -39,14 +35,10 @@ export function record({
       };
     }
     case "win32": {
-      const recordingFileName = `test_${platformName}_${release()}_${screenReaderName}_attempt_${retry}.mp4`;
-      const recordingFilePath = join(
-        "./recordings/",
-        recordingDirectoryPath,
-        recordingFileName
-      );
+      const recordingFileName = `test_${platformName}_${release()}_${screenReaderName}_${sanitizedTitle}_attempt_${retry}.mp4`;
+      const recordingFilePath = join("./recordings/", recordingFileName);
 
-      console.table({ recordingDirectoryPath, recordingFileName });
+      console.table({ recordingFileName });
 
       const stopRecording = windowsRecord(recordingFilePath);
 
