@@ -1,4 +1,4 @@
-name: Test Screen Readers
+name: Test Screen Readers Preview
 
 on:
   pull_request:
@@ -9,6 +9,7 @@ on:
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
+  deployments: write
   pages: write
   id-token: write
   pull-requests: write
@@ -115,8 +116,8 @@ jobs:
         if: steps.cache-windows-test-suites.outputs.cache-hit != 'true'
         run: yarn test:generate
 
-  test-voiceover:
-    name: Playwright VoiceOver Tests (${{ matrix.shardIndex }})
+  test-voiceover-reduced:
+    name: Playwright VoiceOver Reduced Tests (${{ matrix.shardIndex }})
     needs: macos-install
     runs-on: macos-12
     strategy:
@@ -179,8 +180,8 @@ jobs:
           name: allure-results-macos-voiceover-${{ matrix.shardIndex }}
           path: ./allure-results
 
-  test-nvda:
-    name: Playwright NVDA Tests (${{ matrix.shardIndex }})
+  test-nvda-reduced:
+    name: Playwright NVDA Reduced Tests (${{ matrix.shardIndex }})
     needs: windows-install
     runs-on: windows-2022
     strategy:
@@ -244,13 +245,10 @@ jobs:
           path: ./allure-results
 
   publish-html-report:
-    name: Publish to Vercel
+    name: Publish Preview to Vercel
     if: always()
-    needs: [test-voiceover, test-nvda]
+    needs: [test-voiceover-reduced, test-nvda-reduced]
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.head_ref || github.ref_name }}-report
-      url: ${{ steps.vercel-action.outputs.preview-url }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -265,8 +263,8 @@ jobs:
         id: deployment
         with:
           step: start
+          env: preview
           token: ${{ secrets.GITHUB_TOKEN }}
-          env: Preview
 
       - name: Check file space
         run: |

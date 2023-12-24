@@ -9,6 +9,7 @@ on:
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
+  deployments: write
   pages: write
   id-token: write
   pull-requests: write
@@ -329,8 +330,8 @@ jobs:
         id: deployment
         with:
           step: start
+          env: production
           token: ${{ secrets.GITHUB_TOKEN }}
-          env: Production
 
       - name: Check file space
         run: |
