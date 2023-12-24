@@ -250,7 +250,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ${{ github.head_ref || github.ref_name }}-report
-      url: ${{ steps.deploy-pages.outputs.page_url }}
+      url: ${{ steps.vercel-action.outputs.preview-url }}
     steps:
       - uses: actions/checkout@v3
         with:
