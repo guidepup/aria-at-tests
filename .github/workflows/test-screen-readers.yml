@@ -389,6 +389,7 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           github-comment: false
           vercel-args: "--prod"
+          working-directory: allure-report
 
       - name: Update Deployment Status - Finish
         uses: bobheadxi/deployments@v1
