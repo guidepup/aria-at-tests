@@ -250,16 +250,15 @@ jobs:
     needs: [test-voiceover-reduced, test-nvda-reduced]
     runs-on: ubuntu-latest
     steps:
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          remove-dotnet: "true"
-          remove-android: "true"
-          remove-haskell: "true"
-          remove-codeql: "true"
-          remove-docker-images: "true"
-
-      - name: Remove large packages
+      - name: Remove large packages part 1
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+        
+      - name: Remove large packages part 2
         run: |
           sudo apt-get purge -y \
             '^llvm-.*' \
