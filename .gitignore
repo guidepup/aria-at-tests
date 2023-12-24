@@ -113,3 +113,5 @@ testSuites.json
 blob-report
 allure-report
 allure-results
+
+.vercel
