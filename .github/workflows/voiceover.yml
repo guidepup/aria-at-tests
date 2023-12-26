@@ -1,4 +1,4 @@
-name: Test Screen Readers
+name: VoiceOver Screen Reader Test
 
 on:
   push:
@@ -16,7 +16,7 @@ permissions:
 
 # Allow one concurrent deployment
 concurrency:
-  group: "deployment"
+  group: "aria-at-tests-voiceover"
   cancel-in-progress: true
 
 jobs:
@@ -68,94 +68,14 @@ jobs:
         if: steps.cache-macos-test-suites.outputs.cache-hit != 'true'
         run: yarn test:generate
 
-  windows-install:
-    name: Windows Install
-    runs-on: windows-2022
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        id: cache-windows-node-modules
-        with:
-          path: |
-            node_modules
-          key: windows-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
-
-      - name: Cache Playwright binaries
-        uses: actions/cache@v3
-        id: cache-windows-playwright
-        with:
-          path: |
-            C:\Users\runneradmin\AppData\Local\ms-playwright
-          key: windows-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
-
-      - name: Cache Test Suites
-        uses: actions/cache@v3
-        id: cache-windows-test-suites
-        with:
-          path: |
-            testSuites.json
-          key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
-
-      - name: Install Dependencies
-        if: steps.cache-windows-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
-
-      - name: Install Playwright Browsers
-        if: steps.cache-windows-playwright.outputs.cache-hit != 'true'
-        run: yarn test:install
-
-      - name: Generate Test Suites
-        if: steps.cache-windows-test-suites.outputs.cache-hit != 'true'
-        run: yarn test:generate
-
   test-voiceover:
-    name: Playwright VoiceOver Tests (${{ matrix.shardIndex }})
+    name: Playwright VoiceOver Tests (${{ matrix.shardIndex }} / 5)
     needs: macos-install
     runs-on: macos-12
     strategy:
       fail-fast: false
       matrix:
-        shardIndex:
-          [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
-            24,
-            25,
-            26,
-            27,
-            28,
-            29,
-            30,
-          ]
+        shardIndex: [1, 2, 3, 4, 5]
 
     steps:
       - uses: actions/checkout@v3
@@ -191,7 +111,7 @@ jobs:
           key: macos-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Run Tests
-        run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shardIndex }}/30
+        run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shardIndex }}/5
         continue-on-error: true
 
       - name: Archive Playwright Artifacts
@@ -212,108 +132,33 @@ jobs:
           name: allure-results-macos-voiceover-${{ matrix.shardIndex }}
           path: ./allure-results
 
-  test-nvda:
-    name: Playwright NVDA Tests (${{ matrix.shardIndex }})
-    needs: windows-install
-    runs-on: windows-2022
-    strategy:
-      fail-fast: false
-      matrix:
-        shardIndex:
-          [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
-            24,
-            25,
-            26,
-            27,
-            28,
-            29,
-            30,
-          ]
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Guidepup Setup
-        uses: guidepup/setup-action@0.13.0
-
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            node_modules
-          key: windows-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
-
-      - name: Cache Playwright
-        uses: actions/cache@v3
-        with:
-          path: |
-            C:\Users\runneradmin\AppData\Local\ms-playwright
-          key: windows-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
-
-      - name: Cache Test Suites
-        uses: actions/cache@v3
-        with:
-          path: |
-            testSuites.json
-          key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
-
-      - name: Run Tests
-        run: yarn test ./src/windowsNvda.spec.ts --config windows.config.ts --shard ${{ matrix.shardIndex }}/30
-        continue-on-error: true
-
-      - name: Archive Playwright Artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        continue-on-error: true
-        with:
-          name: artifacts-windows-nvda-${{ matrix.shardIndex }}
-          path: |
-            ./test-results
-            ./recordings
-
-      - name: Archive Allure Artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        continue-on-error: true
-        with:
-          name: allure-results-windows-nvda-${{ matrix.shardIndex }}
-          path: ./allure-results
-
   publish-html-report:
-    name: Publish to Vercel
+    name: Publish HTML Report To Vercel
     if: always()
-    needs: [test-voiceover, test-nvda]
+    needs: [test-voiceover]
     runs-on: ubuntu-latest
     steps:
+      - name: Clear Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          sudo apt-get purge -y \
+            '^llvm-.*' \
+            'php.*' \
+            '^mongodb-.*' \
+            '^mysql-.*' \
+            azure-cli \
+            google-chrome-stable \
+            firefox \
+            powershell \
+            microsoft-edge-stable \
+            mono-devel
+          sudo apt-get autoremove -y
+          sudo apt-get clean
+
       - uses: actions/checkout@v3
         with:
           submodules: recursive
@@ -330,13 +175,9 @@ jobs:
           env: production
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check file space
-        run: |
-          df -h
-
       - uses: actions/download-artifact@v4
         with:
-          pattern: allure-results-*
+          pattern: allure-results-macos-voiceover-*
           path: ./allure-results
 
       - name: Move Allure results into one directory
@@ -347,14 +188,9 @@ jobs:
               mv $i/* allure-results-final/
             fi
           done
-          for i in allure-results-windows-nvda-{1..30}; do
-            if [ -d "$i" ]; then
-              mv $i/* allure-results-final/
-            fi
-          done
         working-directory: ./allure-results
 
-      - name: Cache node_modules
+      - name: Install Dependencies From Cache
         uses: actions/cache@v3
         id: cache-macos-node-modules
         with:
@@ -368,22 +204,13 @@ jobs:
       - name: Cleanup Downloads
         run: rm -rf ./allure-results || true
 
-      - name: Log Directory Structure
-        run: |
-          ls -la ./
-          ls -la ./allure-report
-
-      - name: Check file space
-        run: |
-          df -h
-
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
         id: vercel-action
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-project-id: ${{ secrets.VOICEOVER_VERCEL_PROJECT_ID }}
           github-comment: false
           vercel-args: "--prod"
           working-directory: allure-report
