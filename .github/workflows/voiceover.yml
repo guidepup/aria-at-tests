@@ -69,13 +69,13 @@ jobs:
         run: yarn test:generate
 
   test-voiceover:
-    name: Playwright VoiceOver Tests (${{ matrix.shardIndex }} / 5)
+    name: Playwright VoiceOver Tests (${{ matrix.shardIndex }} / 10)
     needs: macos-install
     runs-on: macos-12
     strategy:
       fail-fast: false
       matrix:
-        shardIndex: [1, 2, 3, 4, 5]
+        shardIndex: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     steps:
       - uses: actions/checkout@v3
@@ -111,7 +111,7 @@ jobs:
           key: macos-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Run Tests
-        run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shardIndex }}/5
+        run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shardIndex }}/10
         continue-on-error: true
 
       - name: Archive Playwright Artifacts
