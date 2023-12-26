@@ -1,0 +1,344 @@
+name: Screen Reader Test Preview
+
+on:
+  pull_request:
+    branches: [main]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  deployments: write
+  pages: write
+  id-token: write
+  pull-requests: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "aria-at-tests-preview"
+  cancel-in-progress: true
+
+jobs:
+  macos-install:
+    name: MacOS Install
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        id: cache-macos-node-modules
+        with:
+          path: |
+            node_modules
+          key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
+
+      - name: Cache Playwright binaries
+        uses: actions/cache@v3
+        id: cache-macos-playwright
+        with:
+          path: |
+            ~/Library/Caches/ms-playwright
+          key: macos-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
+
+      - name: Cache Test Suites
+        uses: actions/cache@v3
+        id: cache-macos-test-suites
+        with:
+          path: |
+            testSuites.json
+          key: macos-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
+
+      - name: Install Dependencies
+        if: steps.cache-macos-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
+
+      - name: Install Playwright Browsers
+        if: steps.cache-macos-playwright.outputs.cache-hit != 'true'
+        run: yarn test:install
+
+      - name: Generate Test Suites
+        if: steps.cache-macos-test-suites.outputs.cache-hit != 'true'
+        run: yarn test:generate
+
+  windows-install:
+    name: Windows Install
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        id: cache-windows-node-modules
+        with:
+          path: |
+            node_modules
+          key: windows-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
+
+      - name: Cache Playwright binaries
+        uses: actions/cache@v3
+        id: cache-windows-playwright
+        with:
+          path: |
+            C:\Users\runneradmin\AppData\Local\ms-playwright
+          key: windows-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
+
+      - name: Cache Test Suites
+        uses: actions/cache@v3
+        id: cache-windows-test-suites
+        with:
+          path: |
+            testSuites.json
+          key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
+
+      - name: Install Dependencies
+        if: steps.cache-windows-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
+
+      - name: Install Playwright Browsers
+        if: steps.cache-windows-playwright.outputs.cache-hit != 'true'
+        run: yarn test:install
+
+      - name: Generate Test Suites
+        if: steps.cache-windows-test-suites.outputs.cache-hit != 'true'
+        run: yarn test:generate
+
+  test-voiceover-preview:
+    name: Playwright VoiceOver Reduced Tests (${{ matrix.shardIndex }})
+    needs: macos-install
+    runs-on: macos-12
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Guidepup Setup
+        uses: guidepup/setup-action@0.13.0
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
+
+      - name: Cache Playwright
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/Library/Caches/ms-playwright
+          key: macos-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
+
+      - name: Cache Test Suites
+        uses: actions/cache@v3
+        with:
+          path: |
+            testSuites.json
+          key: macos-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
+
+      - name: Run Tests
+        run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shardIndex }}/2000
+        continue-on-error: true
+
+      - name: Archive Playwright Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: artifacts-macos-voiceover-${{ matrix.shardIndex }}
+          path: |
+            ./test-results
+            ./recordings
+
+      - name: Archive Allure Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: allure-results-macos-voiceover-${{ matrix.shardIndex }}
+          path: ./allure-results
+
+  test-nvda-preview:
+    name: Playwright NVDA Reduced Tests (${{ matrix.shardIndex }})
+    needs: windows-install
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Guidepup Setup
+        uses: guidepup/setup-action@0.13.0
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: windows-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
+
+      - name: Cache Playwright
+        uses: actions/cache@v3
+        with:
+          path: |
+            C:\Users\runneradmin\AppData\Local\ms-playwright
+          key: windows-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
+
+      - name: Cache Test Suites
+        uses: actions/cache@v3
+        with:
+          path: |
+            testSuites.json
+          key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
+
+      - name: Run Tests
+        run: yarn test ./src/windowsNvda.spec.ts --config windows.config.ts --shard ${{ matrix.shardIndex }}/2000
+        continue-on-error: true
+
+      - name: Archive Playwright Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: artifacts-windows-nvda-${{ matrix.shardIndex }}
+          path: |
+            ./test-results
+            ./recordings
+
+      - name: Archive Allure Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: allure-results-windows-nvda-${{ matrix.shardIndex }}
+          path: ./allure-results
+
+  publish-preview-html-report:
+    name: Publish Preview HTML Report To Vercel
+    if: always()
+    needs: [test-voiceover-preview, test-nvda-preview]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clear Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          sudo apt-get purge -y \
+            '^llvm-.*' \
+            'php.*' \
+            '^mongodb-.*' \
+            '^mysql-.*' \
+            azure-cli \
+            google-chrome-stable \
+            firefox \
+            powershell \
+            microsoft-edge-stable \
+            mono-devel
+          sudo apt-get autoremove -y
+          sudo apt-get clean
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Update Deployment Status - Start
+        uses: bobheadxi/deployments@v1
+        id: deployment
+        with:
+          step: start
+          env: aria-at-tests-preview
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: allure-results-*
+          path: ./allure-results
+
+      - name: Move Allure results into one directory
+        run: |
+          mkdir allure-results-final
+          for i in allure-results-macos-voiceover-{1..30}; do
+            if [ -d "$i" ]; then
+              mv $i/* allure-results-final/
+            fi
+          done
+          for i in allure-results-windows-nvda-{1..30}; do
+            if [ -d "$i" ]; then
+              mv $i/* allure-results-final/
+            fi
+          done
+        working-directory: ./allure-results
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        id: cache-macos-node-modules
+        with:
+          path: |
+            node_modules
+          key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
+
+      - name: Create Allure Test Report
+        run: npx allure generate ./allure-results/allure-results-final --clean -o ./allure-report
+
+      - name: Cleanup Downloads
+        run: rm -rf ./allure-results || true
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        id: vercel-action
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.PREVIEW_VERCEL_PROJECT_ID }}
+          github-comment: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          working-directory: allure-report
+
+      - name: Update Deployment Status - Finish
+        uses: bobheadxi/deployments@v1
+        if: always()
+        with:
+          step: finish
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          env: ${{ steps.deployment.outputs.env }}
+          env_url: ${{ steps.vercel-action.outputs.preview-url }}
