@@ -308,25 +308,6 @@ ajv@^6.12.4:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-allure-commandline@^2.25.0:
-  version "2.25.0"
-  resolved "https://registry.yarnpkg.com/allure-commandline/-/allure-commandline-2.25.0.tgz#46a42b91a5fdeb70a4d2a077bed93515b1c7dd65"
-  integrity sha512-HYMQwuX/8ySTrXqgr6ZY830c6xgRbSusxVwZIBbDyNTCDb3mqK2b1ENjsD8yhl/7/8S02NZCDAwJFxt3f8qL9Q==
-
-allure-js-commons@2.10.0:
-  version "2.10.0"
-  resolved "https://registry.yarnpkg.com/allure-js-commons/-/allure-js-commons-2.10.0.tgz#59edd18ac283bd58d848e47fc7e625342921a43a"
-  integrity sha512-DgACWBU2dchQD8tQOo5Y0MXx08SSzdgCnKBdwrOu29vITYBXih+0r8SbmrFYQhjAbn8eKMM+mXq+rKtjZRa2oA==
-  dependencies:
-    properties "^1.2.1"
-
-allure-playwright@^2.10.0:
-  version "2.10.0"
-  resolved "https://registry.yarnpkg.com/allure-playwright/-/allure-playwright-2.10.0.tgz#f5ff5a1dcc946ed92b056a1d45d7aa3c55b391ca"
-  integrity sha512-zDljPJ/Fnyd2fn7msChtZebwkSVmAGLe/oWK7okGi0Ed+iHZ0E5Vwe5Z5MtUdfLjnT/OkOduwmS7R/DHeTXFSA==
-  dependencies:
-    allure-js-commons "2.10.0"
-
 ansi-regex@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-5.0.1.tgz#082cb2c89c9fe8659a311a53bd6a4dc5301db304"
@@ -1054,11 +1035,6 @@ progress@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
-
-properties@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/properties/-/properties-1.2.1.tgz#0ee97a7fc020b1a2a55b8659eda4aa8d869094bd"
-  integrity sha512-qYNxyMj1JeW54i/EWEFsM1cVwxJbtgPp8+0Wg9XjNaK6VE/c4oRi6PNu5p7w1mNXEIQIjV5Wwn8v8Gz82/QzdQ==
 
 punycode@^2.1.0:
   version "2.1.1"

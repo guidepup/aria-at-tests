@@ -1,7 +1,8 @@
 import { ScreenReader } from "@guidepup/guidepup";
 import { test as playwrightTest } from "@playwright/test";
 import { expect } from "@playwright/test";
-import { annotate } from "./annotate";
+import { annotateIssue } from "./annotateIssue";
+import { log } from "./log";
 
 /*
  * Explanation of the regular expression:
@@ -106,9 +107,9 @@ export async function assert({
     const phrase = (matches?.at(1) ?? matches?.at(2) ?? matches?.at(3))?.trim();
 
     if (!phrase) {
-      annotate({
+      annotateIssue({
         test,
-        warning: `Unable to perform assertion: "${assertion}"`,
+        issue: `Unable to perform assertion: "${assertion}"`,
       });
 
       continue;
@@ -121,18 +122,18 @@ export async function assert({
 
     const matchRegex = new RegExp(phraseRegex, "gi");
 
-    console.log(`Performing assertion: "${assertion}"`);
+    log(`Performing assertion: "${assertion}"`);
 
     const found = !!spokenPhraseLog.find((spokenPhrase) =>
       matchRegex.test(withRoleReplacements(spokenPhrase))
     );
 
     if (!found) {
-      console.log(
+      log(
         `Assertion "${assertion}" failed. Unable to find phrase "${phrase}" in spoken phrase log.`
       );
     } else {
-      console.log(`Assertion "${assertion}" succeeded.`);
+      log(`Assertion "${assertion}" succeeded.`);
     }
 
     expect

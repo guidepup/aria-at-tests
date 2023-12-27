@@ -1,6 +1,6 @@
-import { accessSync, constants, readFileSync } from "fs";
+import { accessSync, constants } from "fs";
 import { basename } from "path";
-import { allure } from "allure-playwright";
+import { test as playwrightTest } from "@playwright/test";
 import { delay } from "./delay";
 
 const MP4 = "video/mp4";
@@ -9,20 +9,22 @@ const MOV = "video/quicktime";
 const EXISTS_RETRIES = 20;
 const EXISTS_WAIT = 100;
 
-export const setAllureRecording = async ({
+export const attachRecording = async ({
   osPlatform,
-  recordingFilePath,
+  path,
+  test,
 }: {
   osPlatform: NodeJS.Platform;
-  recordingFilePath: string;
+  path: string;
+  test: typeof playwrightTest;
 }) => {
-  if (!recordingFilePath) {
+  if (!path) {
     return;
   }
 
   for (let i = 0; i < EXISTS_RETRIES; i++) {
     try {
-      accessSync(recordingFilePath, constants.F_OK);
+      accessSync(path, constants.F_OK);
 
       break;
     } catch (e) {
@@ -34,9 +36,8 @@ export const setAllureRecording = async ({
     await delay(EXISTS_WAIT);
   }
 
-  const buffer = readFileSync(recordingFilePath);
-  const name = basename(recordingFilePath);
+  const name = basename(path);
   const contentType = osPlatform === "darwin" ? MOV : MP4;
 
-  await allure.attachment(name, buffer, contentType);
+  await test.info().attach(name, { contentType, path });
 };

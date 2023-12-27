@@ -19,7 +19,8 @@
     "aria-at",
     "playwright",
     "screen-reader",
-    "voiceover"
+    "voiceover",
+    "nvda"
   ],
   "scripts": {
     "ci": "yarn lint",
@@ -40,8 +41,6 @@
     "@types/node": "^20.10.5",
     "@typescript-eslint/eslint-plugin": "^6.16.0",
     "@typescript-eslint/parser": "^6.16.0",
-    "allure-commandline": "^2.25.0",
-    "allure-playwright": "^2.10.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "ts-node": "^10.9.2",

@@ -117,7 +117,7 @@ jobs:
         run: yarn test:generate
 
   test-voiceover-preview:
-    name: Playwright VoiceOver Reduced Tests (${{ matrix.shardIndex }})
+    name: Playwright VoiceOver Reduced Tests (${{ matrix.shardIndex }} / 1)
     needs: macos-install
     runs-on: macos-12
     strategy:
@@ -172,16 +172,16 @@ jobs:
             ./test-results
             ./recordings
 
-      - name: Archive Allure Artifacts
+      - name: Archive Blob Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
         with:
-          name: allure-results-macos-voiceover-${{ matrix.shardIndex }}
-          path: ./allure-results
+          name: blob-report-macos-voiceover-${{ matrix.shardIndex }}
+          path: ./blob-report
 
   test-nvda-preview:
-    name: Playwright NVDA Reduced Tests (${{ matrix.shardIndex }})
+    name: Playwright NVDA Reduced Tests (${{ matrix.shardIndex }} / 1)
     needs: windows-install
     runs-on: windows-2022
     strategy:
@@ -236,13 +236,13 @@ jobs:
             ./test-results
             ./recordings
 
-      - name: Archive Allure Artifacts
+      - name: Archive Blob Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
         with:
-          name: allure-results-windows-nvda-${{ matrix.shardIndex }}
-          path: ./allure-results
+          name: blob-report-windows-nvda-${{ matrix.shardIndex }}
+          path: ./blob-report
 
   publish-preview-html-report:
     name: Publish Preview HTML Report To Vercel
@@ -289,23 +289,9 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          pattern: allure-results-*
-          path: ./allure-results
-
-      - name: Move Allure results into one directory
-        run: |
-          mkdir allure-results-final
-          for i in allure-results-macos-voiceover-{1..30}; do
-            if [ -d "$i" ]; then
-              mv $i/* allure-results-final/
-            fi
-          done
-          for i in allure-results-windows-nvda-{1..30}; do
-            if [ -d "$i" ]; then
-              mv $i/* allure-results-final/
-            fi
-          done
-        working-directory: ./allure-results
+          merge-multiple: true
+          pattern: blob-report-*
+          path: ./blob-report
 
       - name: Cache node_modules
         uses: actions/cache@v3
@@ -315,11 +301,11 @@ jobs:
             node_modules
           key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
-      - name: Create Allure Test Report
-        run: npx allure generate ./allure-results/allure-results-final --clean -o ./allure-report
+      - name: Merge into HTML Report
+        run: npx playwright merge-reports --config=merge.config.ts ./blob-report
 
       - name: Cleanup Downloads
-        run: rm -rf ./allure-results || true
+        run: rm -rf ./blob-report || true
 
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
@@ -330,7 +316,7 @@ jobs:
           vercel-project-id: ${{ secrets.PREVIEW_VERCEL_PROJECT_ID }}
           github-comment: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: allure-report
+          working-directory: html-report
 
       - name: Update Deployment Status - Finish
         uses: bobheadxi/deployments@v1
