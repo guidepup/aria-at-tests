@@ -271,7 +271,7 @@ jobs:
     if: always()
     needs: [test-voiceover, test-nvda]
     runs-on: ubuntu-latest
-     environment:
+    environment:
       name: aria-at-tests-report
       url: ${{ steps.deploy-pages.outputs.page_url }}
     steps:
