@@ -56,32 +56,20 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.56.0.tgz#ef20350fec605a7f7035a01764731b2de0f3782b"
   integrity sha512-gMsVel9D7f2HLkBma9VbtzZRehRogVRfbr++f06nL2vnCGCNlzOD+/MUov/F4p8myyAHspEhVobgjpX64q5m6A==
 
-"@guidepup/guidepup@^0.20.0":
-  version "0.20.0"
-  resolved "https://registry.yarnpkg.com/@guidepup/guidepup/-/guidepup-0.20.0.tgz#9715beda0731f089082b225a263de3a23aacd78d"
-  integrity sha512-ak2xEM4t2uBWmUFmZgjrHSBBEqlP68p3c2gm2GeLeONepYisOfoQDiohUQh79jA13s3H7oRzQZ1J80hOKLDgMw==
+"@guidepup/guidepup@^0.21.0":
+  version "0.21.0"
+  resolved "https://registry.yarnpkg.com/@guidepup/guidepup/-/guidepup-0.21.0.tgz#bccf8bd7c5a08b4f8b70578eba1a8f835bdb8e5d"
+  integrity sha512-gO7c2rT2nG/VgAhMlk7FmEbU4HI8DoS8FYsohAcCVWaCHZM/I6vUh4FLTHMZ3p+ZTtHubNwqprxAHmzQoxM3Cg==
   dependencies:
     ffmpeg-static "^5.2.0"
     regedit "5.1.2"
     semver "^7.3.8"
     shelljs "^0.8.5"
 
-"@guidepup/guidepup@^0.20.1":
-  version "0.20.1"
-  resolved "https://registry.yarnpkg.com/@guidepup/guidepup/-/guidepup-0.20.1.tgz#90bd079ca0fd1c445cfbb86725735e4c9080ec35"
-  integrity sha512-PeJHXc/hnGK17ZsEH8hh3Iql3Ys9dJX0jkLQhHDYOO6+BBqldoYx0OkNoLmCoW+ZtzepUOla3xsO44KaAaj9ug==
-  dependencies:
-    ffmpeg-static "^5.2.0"
-    regedit "5.1.2"
-    semver "^7.3.8"
-    shelljs "^0.8.5"
-
-"@guidepup/playwright@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@guidepup/playwright/-/playwright-0.11.0.tgz#113b77e88947bbaec5e047ea816d977da2627c69"
-  integrity sha512-6d0ki20Gl7c8iCS5dNtvi9SqzAohP9/jlhC6RZ1OOZXV/iDvT8oCavbzcsm5JQtlVMwpXPZxBC/iTJuNaU7qOg==
-  dependencies:
-    "@guidepup/guidepup" "^0.20.0"
+"@guidepup/playwright@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@guidepup/playwright/-/playwright-0.12.0.tgz#ba2a3778fd31d4c966fdd2f90f9900457f0d2993"
+  integrity sha512-mSII0K8djfqkTr2CCvHYsiXjHrDkbnZAnQXoCmi3VXX1fO11EQ08k0jmmV420d/I+pEyoXPboQmU4YI6in7HIg==
 
 "@humanwhocodes/config-array@^0.11.13":
   version "0.11.13"
