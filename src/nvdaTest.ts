@@ -38,6 +38,8 @@ const nvdaTest = test.extend<{ nvda: typeof nvda }>({
         }
 
         if (nvdaStartRetryCount === 3) {
+          test.info().fixme(true, error.message);
+
           throw error;
         }
       }

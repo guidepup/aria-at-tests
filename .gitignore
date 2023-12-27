@@ -110,8 +110,5 @@ recordings
 playwright-report
 html-report
 testSuites.json
-blob-report
-allure-report
-allure-results
 
 .vercel

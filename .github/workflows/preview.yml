@@ -1,4 +1,4 @@
-name: Screen Reader Test Preview
+name: Screen Reader Tests Preview Report
 
 on:
   pull_request:
@@ -16,7 +16,7 @@ permissions:
 
 # Allow one concurrent deployment
 concurrency:
-  group: "aria-at-tests-preview"
+  group: "aria-at-tests-preview-report"
   cancel-in-progress: true
 
 jobs:
@@ -117,7 +117,7 @@ jobs:
         run: yarn test:generate
 
   test-voiceover-preview:
-    name: Playwright VoiceOver Reduced Tests (${{ matrix.shardIndex }})
+    name: Playwright VoiceOver Reduced Tests (${{ matrix.shardIndex }} / 1)
     needs: macos-install
     runs-on: macos-12
     strategy:
@@ -162,7 +162,7 @@ jobs:
         run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shardIndex }}/2000
         continue-on-error: true
 
-      - name: Archive Playwright Artifacts
+      - name: Upload Playwright Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
@@ -172,16 +172,16 @@ jobs:
             ./test-results
             ./recordings
 
-      - name: Archive Allure Artifacts
+      - name: Upload HTML Report Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
         with:
-          name: allure-results-macos-voiceover-${{ matrix.shardIndex }}
-          path: ./allure-results
+          name: playwright-report-macos-voiceover-${{ matrix.shardIndex }}
+          path: ./playwright-report
 
   test-nvda-preview:
-    name: Playwright NVDA Reduced Tests (${{ matrix.shardIndex }})
+    name: Playwright NVDA Reduced Tests (${{ matrix.shardIndex }} / 1)
     needs: windows-install
     runs-on: windows-2022
     strategy:
@@ -226,7 +226,7 @@ jobs:
         run: yarn test ./src/windowsNvda.spec.ts --config windows.config.ts --shard ${{ matrix.shardIndex }}/2000
         continue-on-error: true
 
-      - name: Archive Playwright Artifacts
+      - name: Upload Playwright Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
@@ -236,19 +236,22 @@ jobs:
             ./test-results
             ./recordings
 
-      - name: Archive Allure Artifacts
+      - name: Upload HTML Report Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
         with:
-          name: allure-results-windows-nvda-${{ matrix.shardIndex }}
-          path: ./allure-results
+          name: playwright-report-windows-nvda-${{ matrix.shardIndex }}
+          path: ./playwright-report
 
   publish-preview-html-report:
-    name: Publish Preview HTML Report To Vercel
+    name: Publish Preview HTML Report
     if: always()
     needs: [test-voiceover-preview, test-nvda-preview]
     runs-on: ubuntu-latest
+    environment:
+      name: aria-at-tests-preview-report
+      url: ${{ steps.deploy-pages.outputs.page_url }}
     steps:
       - name: Clear Space
         run: |
@@ -279,33 +282,10 @@ jobs:
         with:
           node-version: 20
 
-      - name: Update Deployment Status - Start
-        uses: bobheadxi/deployments@v1
-        id: deployment
-        with:
-          step: start
-          env: aria-at-tests-preview
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: actions/download-artifact@v4
         with:
-          pattern: allure-results-*
-          path: ./allure-results
-
-      - name: Move Allure results into one directory
-        run: |
-          mkdir allure-results-final
-          for i in allure-results-macos-voiceover-{1..30}; do
-            if [ -d "$i" ]; then
-              mv $i/* allure-results-final/
-            fi
-          done
-          for i in allure-results-windows-nvda-{1..30}; do
-            if [ -d "$i" ]; then
-              mv $i/* allure-results-final/
-            fi
-          done
-        working-directory: ./allure-results
+          pattern: playwright-report-*
+          path: ./playwright-report
 
       - name: Cache node_modules
         uses: actions/cache@v3
@@ -315,30 +295,30 @@ jobs:
             node_modules
           key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
-      - name: Create Allure Test Report
-        run: npx allure generate ./allure-results/allure-results-final --clean -o ./allure-report
+      - name: Create Test Report
+        run: yarn test:report
 
       - name: Cleanup Downloads
-        run: rm -rf ./allure-results || true
+        run: rm -rf ./playwright-report || true
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        id: vercel-action
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.PREVIEW_VERCEL_PROJECT_ID }}
-          github-comment: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: allure-report
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
-      - name: Update Deployment Status - Finish
-        uses: bobheadxi/deployments@v1
-        if: always()
+      - name: Upload HTML Report
+        uses: actions/upload-pages-artifact@v3
         with:
-          step: finish
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: ${{ job.status }}
-          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          env: ${{ steps.deployment.outputs.env }}
-          env_url: ${{ steps.vercel-action.outputs.preview-url }}
+          path: html-report
+
+      - name: Deploy to GitHub Pages
+        id: deploy-pages
+        uses: actions/deploy-pages@v4
+
+      - name: PR Comment
+        if: ${{ always() && github.event_name == 'pull_request' }}
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            Playwright Test Report: ${{steps.deploy-pages.outputs.page_url}}
+          comment_tag: "Playwright Test Report"
+          pr_number: ${{ inputs.pr_number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

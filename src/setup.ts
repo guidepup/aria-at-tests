@@ -2,6 +2,7 @@ import { Page } from "@playwright/test";
 import { delay } from "./delay";
 import { ScreenReader } from "@guidepup/guidepup";
 import { Test } from "./types";
+import { log } from "./log";
 
 const PAGE_LOAD_DELAY = 250;
 
@@ -28,7 +29,7 @@ export async function setup({
   }) => void | Promise<void>;
   testUrl: string;
 }): Promise<void> {
-  console.log(`Navigating to URL: "${testUrl}".`);
+  log(`Navigating to URL: "${testUrl}".`);
 
   await page.goto(testUrl, { waitUntil: "load" });
   await delay(PAGE_LOAD_DELAY);
@@ -38,16 +39,17 @@ export async function setup({
   await screenReader.clearItemTextLog();
 
   if (hasSetupScript) {
-    console.log(`Running test setup.`);
+    log("Running test setup.");
 
     await screenReader.act();
 
     const lastSpokenPhrase = await screenReader.lastSpokenPhrase();
-    console.log(`Screen reader output: "${lastSpokenPhrase}".`);
 
-    console.log(`Running test steps.`);
+    log(`Screen reader output: "${lastSpokenPhrase}".`);
+    log("Running test steps.");
   } else {
-    console.log(`No test setup configured. Running test steps.`);
+    log("No test setup configured.");
+    log("Running test steps.");
   }
 
   await setMode({ mode, screenReader });

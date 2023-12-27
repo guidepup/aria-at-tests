@@ -10,17 +10,16 @@ const config: PlaywrightTestConfig = {
   retries: 1,
   projects: [
     {
-      name: "firefox",
-      use: { ...devices["Desktop Firefox"], headless: false },
-    },
-    {
       name: "chromium",
       use: { ...devices["Desktop Chrome"], headless: false },
     },
+    // TODO: Enable once figure out storage size situation.
+    // {
+    //   name: "firefox",
+    //   use: { ...devices["Desktop Firefox"], headless: false },
+    // },
   ],
-  reporter: process.env.CI
-    ? [["github"], ["allure-playwright", { outputDir: "allure-results" }]]
-    : "list",
+  reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
 };
 
 export default config;
