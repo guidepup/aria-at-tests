@@ -22,7 +22,7 @@ const config: PlaywrightTestConfig = {
       use: { ...devices["Desktop Chrome"], headless: false },
     },
   ],
-  reporter: process.env.CI ? [["github"], ["blob"]] : "list",
+  reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
 };
 
 export default config;

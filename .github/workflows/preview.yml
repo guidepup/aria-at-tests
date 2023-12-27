@@ -162,7 +162,7 @@ jobs:
         run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shardIndex }}/2000
         continue-on-error: true
 
-      - name: Archive Playwright Artifacts
+      - name: Upload Playwright Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
@@ -172,13 +172,13 @@ jobs:
             ./test-results
             ./recordings
 
-      - name: Archive Blob Artifacts
+      - name: Upload HTML Report Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
         with:
-          name: blob-report-macos-voiceover-${{ matrix.shardIndex }}
-          path: ./blob-report
+          name: playwright-report-macos-voiceover-${{ matrix.shardIndex }}
+          path: ./playwright-report
 
   test-nvda-preview:
     name: Playwright NVDA Reduced Tests (${{ matrix.shardIndex }} / 1)
@@ -226,7 +226,7 @@ jobs:
         run: yarn test ./src/windowsNvda.spec.ts --config windows.config.ts --shard ${{ matrix.shardIndex }}/2000
         continue-on-error: true
 
-      - name: Archive Playwright Artifacts
+      - name: Upload Playwright Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
@@ -236,13 +236,13 @@ jobs:
             ./test-results
             ./recordings
 
-      - name: Archive Blob Artifacts
+      - name: Upload HTML Report Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
         with:
-          name: blob-report-windows-nvda-${{ matrix.shardIndex }}
-          path: ./blob-report
+          name: playwright-report-windows-nvda-${{ matrix.shardIndex }}
+          path: ./playwright-report
 
   publish-preview-html-report:
     name: Publish Preview HTML Report To Vercel
@@ -289,14 +289,13 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          merge-multiple: true
-          pattern: blob-report-*
-          path: ./blob-report
+          pattern: playwright-report-*
+          path: ./playwright-report
 
       - name: Log Directory Structure
         run: |
           ls -la ./
-          ls -la ./blob-report
+          ls -la ./playwright-report
 
       - name: Cache node_modules
         uses: actions/cache@v3
@@ -306,22 +305,22 @@ jobs:
             node_modules
           key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
-      - name: Merge Into HTML Report
-        run: npx playwright merge-reports --config=merge.config.ts ./blob-report
+      - name: Create Test Report
+        run: yarn test:report
 
       - name: Cleanup Downloads
-        run: rm -rf ./blob-report || true
+        run: rm -rf ./playwright-report || true
 
       - name: Log Directory Structure
         run: |
           ls -la ./
-          ls -la ./playwright-report
+          ls -la ./html-report
 
       - name: Upload HTML Report Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
-          path: playwright-report
+          name: html-report
+          path: html-report
 
       - name: Deploy HTML Report to Vercel
         uses: amondnet/vercel-action@v25
@@ -332,7 +331,7 @@ jobs:
           vercel-project-id: ${{ secrets.PREVIEW_VERCEL_PROJECT_ID }}
           github-comment: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: playwright-report
+          working-directory: html-report
 
       - name: Update Deployment Status - Finish
         uses: bobheadxi/deployments@v1

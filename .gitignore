@@ -110,6 +110,5 @@ recordings
 playwright-report
 html-report
 testSuites.json
-blob-report
 
 .vercel
