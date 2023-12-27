@@ -66,6 +66,16 @@
     semver "^7.3.8"
     shelljs "^0.8.5"
 
+"@guidepup/guidepup@^0.20.1":
+  version "0.20.1"
+  resolved "https://registry.yarnpkg.com/@guidepup/guidepup/-/guidepup-0.20.1.tgz#90bd079ca0fd1c445cfbb86725735e4c9080ec35"
+  integrity sha512-PeJHXc/hnGK17ZsEH8hh3Iql3Ys9dJX0jkLQhHDYOO6+BBqldoYx0OkNoLmCoW+ZtzepUOla3xsO44KaAaj9ug==
+  dependencies:
+    ffmpeg-static "^5.2.0"
+    regedit "5.1.2"
+    semver "^7.3.8"
+    shelljs "^0.8.5"
+
 "@guidepup/playwright@^0.11.0":
   version "0.11.0"
   resolved "https://registry.yarnpkg.com/@guidepup/playwright/-/playwright-0.11.0.tgz#113b77e88947bbaec5e047ea816d977da2627c69"

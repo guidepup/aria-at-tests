@@ -1,8 +1,10 @@
+import { warn } from "./log";
+
 export const annotateIssue = ({ test, issue }) => {
-  console.warn(issue);
+  warn(issue);
 
   test.info().annotations.push({
-    type: "issue",
+    type: "⚠️ issue",
     description: issue,
   });
 };

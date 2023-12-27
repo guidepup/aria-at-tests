@@ -14,7 +14,7 @@ import { getScreenReaderTests } from "./getScreenReaderTests";
 import { setMetadata } from "./setMetadata";
 import { attachRecording } from "./attachRecording";
 import { Test } from "./types";
-import { log } from "./log";
+import { log, table } from "./log";
 
 // Allow sharding across describe blocks
 test.describe.configure({ mode: "parallel" });
@@ -119,14 +119,14 @@ const generateTestSuite = ({
 
   test.describe(`@windows @nvda ${references.title}`, () => {
     test.beforeEach(({ browserName, browser }) => {
-      console.table({
+      table({
         browserName,
         browserVersion: browser.version(),
         osPlatform,
         osRelease,
       });
 
-      console.table(references);
+      table(references);
     });
 
     for (const screenReaderTest of screenReaderTests) {
@@ -142,7 +142,7 @@ const generateTestSuite = ({
         let stopRecording: () => string;
 
         test.beforeEach(async ({ page, nvda }) => {
-          console.table(screenReaderTest);
+          table(screenReaderTest);
 
           try {
             stopRecording = record({

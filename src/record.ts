@@ -2,6 +2,7 @@ import { macOSRecord, windowsRecord } from "@guidepup/guidepup";
 import { test as playwrightTest } from "@playwright/test";
 import { platform, release } from "os";
 import { join } from "path";
+import { table } from "./log";
 
 export function record({
   screenReaderName,
@@ -24,7 +25,7 @@ export function record({
       const recordingFileName = `test_${platformName}_${release()}_${screenReaderName}_${sanitizedTitle}_attempt_${retry}.mov`;
       const recordingFilePath = join("./recordings/", recordingFileName);
 
-      console.table({ recordingFileName });
+      table({ recordingFileName });
 
       const stopRecording = macOSRecord(recordingFilePath);
 
@@ -38,7 +39,7 @@ export function record({
       const recordingFileName = `test_${platformName}_${release()}_${screenReaderName}_${sanitizedTitle}_attempt_${retry}.mp4`;
       const recordingFilePath = join("./recordings/", recordingFileName);
 
-      console.table({ recordingFileName });
+      table({ recordingFileName });
 
       const stopRecording = windowsRecord(recordingFilePath);
 
