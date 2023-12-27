@@ -293,6 +293,11 @@ jobs:
           pattern: blob-report-*
           path: ./blob-report
 
+      - name: Log Directory Structure
+        run: |
+          ls -la ./
+          ls -la ./blob-report
+
       - name: Cache node_modules
         uses: actions/cache@v3
         id: cache-macos-node-modules
@@ -306,6 +311,11 @@ jobs:
 
       - name: Cleanup Downloads
         run: rm -rf ./blob-report || true
+
+      - name: Log Directory Structure
+        run: |
+          ls -la ./
+          ls -la ./html-report
 
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
