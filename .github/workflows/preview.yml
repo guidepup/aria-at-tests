@@ -1,4 +1,4 @@
-name: Screen Reader Test Preview
+name: Screen Reader Tests Preview Report
 
 on:
   pull_request:
@@ -16,7 +16,7 @@ permissions:
 
 # Allow one concurrent deployment
 concurrency:
-  group: "aria-at-tests-preview"
+  group: "aria-at-tests-preview-report"
   cancel-in-progress: true
 
 jobs:
@@ -245,10 +245,13 @@ jobs:
           path: ./playwright-report
 
   publish-preview-html-report:
-    name: Publish Preview HTML Report To Vercel
+    name: Publish Preview HTML Report
     if: always()
     needs: [test-voiceover-preview, test-nvda-preview]
     runs-on: ubuntu-latest
+     environment:
+      name: aria-at-tests-preview-report
+      url: ${{ steps.deploy-pages.outputs.page_url }}
     steps:
       - name: Clear Space
         run: |
@@ -279,23 +282,10 @@ jobs:
         with:
           node-version: 20
 
-      - name: Update Deployment Status - Start
-        uses: bobheadxi/deployments@v1
-        id: deployment
-        with:
-          step: start
-          env: aria-at-tests-preview
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: actions/download-artifact@v4
         with:
           pattern: playwright-report-*
           path: ./playwright-report
-
-      - name: Log Directory Structure
-        run: |
-          ls -la ./
-          ls -la ./playwright-report
 
       - name: Cache node_modules
         uses: actions/cache@v3
@@ -311,35 +301,24 @@ jobs:
       - name: Cleanup Downloads
         run: rm -rf ./playwright-report || true
 
-      - name: Log Directory Structure
-        run: |
-          ls -la ./
-          ls -la ./html-report
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
-      - name: Upload HTML Report Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload HTML Report
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: html-report
           path: html-report
 
-      - name: Deploy HTML Report to Vercel
-        uses: amondnet/vercel-action@v25
-        id: vercel-action
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.PREVIEW_VERCEL_PROJECT_ID }}
-          github-comment: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: html-report
+      - name: Deploy to GitHub Pages
+        id: deploy-pages
+        uses: actions/deploy-pages@v4
 
-      - name: Update Deployment Status - Finish
-        uses: bobheadxi/deployments@v1
-        if: always()
+      - name: PR Comment
+        if: ${{ always() && github.event_name == 'pull_request' }}
+        uses: thollander/actions-comment-pull-request@v2
         with:
-          step: finish
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: ${{ job.status }}
-          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          env: ${{ steps.deployment.outputs.env }}
-          env_url: ${{ steps.vercel-action.outputs.preview-url }}
+          message: |
+            Playwright Test Report: ${{steps.deploy-pages.outputs.page_url}}
+          comment_tag: "Playwright Test Report"
+          pr_number: ${{ inputs.pr_number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

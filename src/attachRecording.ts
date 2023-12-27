@@ -22,6 +22,11 @@ export const attachRecording = async ({
     return;
   }
 
+  // Only attach failed test recordings
+  if (!test.info().errors?.length) {
+    return;
+  }
+
   for (let i = 0; i < EXISTS_RETRIES; i++) {
     try {
       accessSync(path, constants.F_OK);

@@ -1,4 +1,4 @@
-name: VoiceOver Screen Reader Test
+name: Screen Reader Tests Report
 
 on:
   push:
@@ -16,7 +16,7 @@ permissions:
 
 # Allow one concurrent deployment
 concurrency:
-  group: "aria-at-tests-voiceover"
+  group: "aria-at-tests-report"
   cancel-in-progress: true
 
 jobs:
@@ -68,6 +68,54 @@ jobs:
         if: steps.cache-macos-test-suites.outputs.cache-hit != 'true'
         run: yarn test:generate
 
+  windows-install:
+    name: Windows Install
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        id: cache-windows-node-modules
+        with:
+          path: |
+            node_modules
+          key: windows-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
+
+      - name: Cache Playwright binaries
+        uses: actions/cache@v3
+        id: cache-windows-playwright
+        with:
+          path: |
+            C:\Users\runneradmin\AppData\Local\ms-playwright
+          key: windows-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
+
+      - name: Cache Test Suites
+        uses: actions/cache@v3
+        id: cache-windows-test-suites
+        with:
+          path: |
+            testSuites.json
+          key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
+
+      - name: Install Dependencies
+        if: steps.cache-windows-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
+
+      - name: Install Playwright Browsers
+        if: steps.cache-windows-playwright.outputs.cache-hit != 'true'
+        run: yarn test:install
+
+      - name: Generate Test Suites
+        if: steps.cache-windows-test-suites.outputs.cache-hit != 'true'
+        run: yarn test:generate
+
   test-voiceover:
     name: Playwright VoiceOver Tests (${{ matrix.shardIndex }} / 10)
     needs: macos-install
@@ -114,7 +162,7 @@ jobs:
         run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shardIndex }}/10
         continue-on-error: true
 
-      - name: Archive Playwright Artifacts
+      - name: Upload Playwright Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
@@ -124,19 +172,108 @@ jobs:
             ./test-results
             ./recordings
 
-      - name: Archive Allure Artifacts
+      - name: Upload HTML Report Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
         with:
-          name: allure-results-macos-voiceover-${{ matrix.shardIndex }}
-          path: ./allure-results
+          name: playwright-report-macos-voiceover-${{ matrix.shardIndex }}
+          path: ./playwright-report
+
+  test-nvda:
+    name: Playwright NVDA Tests (${{ matrix.shardIndex }} / 20)
+    needs: windows-install
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex:
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+          ]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Guidepup Setup
+        uses: guidepup/setup-action@0.13.0
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: windows-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
+
+      - name: Cache Playwright
+        uses: actions/cache@v3
+        with:
+          path: |
+            C:\Users\runneradmin\AppData\Local\ms-playwright
+          key: windows-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
+
+      - name: Cache Test Suites
+        uses: actions/cache@v3
+        with:
+          path: |
+            testSuites.json
+          key: windows-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
+
+      - name: Run Tests
+        run: yarn test ./src/windowsNvda.spec.ts --config windows.config.ts --shard ${{ matrix.shardIndex }}/20
+        continue-on-error: true
+
+      - name: Upload Playwright Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: artifacts-windows-nvda-${{ matrix.shardIndex }}
+          path: |
+            ./test-results
+            ./recordings
+
+      - name: Upload HTML Report Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: playwright-report-windows-nvda-${{ matrix.shardIndex }}
+          path: ./playwright-report
 
   publish-html-report:
-    name: Publish HTML Report To Vercel
+    name: Publish HTML Report
     if: always()
-    needs: [test-voiceover]
+    needs: [test-voiceover, test-nvda]
     runs-on: ubuntu-latest
+     environment:
+      name: aria-at-tests-report
+      url: ${{ steps.deploy-pages.outputs.page_url }}
     steps:
       - name: Clear Space
         run: |
@@ -167,30 +304,12 @@ jobs:
         with:
           node-version: 20
 
-      - name: Update Deployment Status - Start
-        uses: bobheadxi/deployments@v1
-        id: deployment
-        with:
-          step: start
-          env: production
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: actions/download-artifact@v4
         with:
-          pattern: allure-results-macos-voiceover-*
-          path: ./allure-results
+          pattern: playwright-report-*
+          path: ./playwright-report
 
-      - name: Move Allure results into one directory
-        run: |
-          mkdir allure-results-final
-          for i in allure-results-macos-voiceover-{1..30}; do
-            if [ -d "$i" ]; then
-              mv $i/* allure-results-final/
-            fi
-          done
-        working-directory: ./allure-results
-
-      - name: Install Dependencies From Cache
+      - name: Cache node_modules
         uses: actions/cache@v3
         id: cache-macos-node-modules
         with:
@@ -198,30 +317,20 @@ jobs:
             node_modules
           key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
-      - name: Create Allure Test Report
-        run: npx allure generate ./allure-results/allure-results-final --clean -o ./allure-report
+      - name: Create Test Report
+        run: yarn test:report
 
       - name: Cleanup Downloads
-        run: rm -rf ./allure-results || true
+        run: rm -rf ./playwright-report || true
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        id: vercel-action
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VOICEOVER_VERCEL_PROJECT_ID }}
-          github-comment: false
-          vercel-args: "--prod"
-          working-directory: allure-report
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
-      - name: Update Deployment Status - Finish
-        uses: bobheadxi/deployments@v1
-        if: always()
+      - name: Upload HTML Report
+        uses: actions/upload-pages-artifact@v3
         with:
-          step: finish
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: ${{ job.status }}
-          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          env: ${{ steps.deployment.outputs.env }}
-          env_url: ${{ steps.vercel-action.outputs.preview-url }}
+          path: html-report
+
+      - name: Deploy to GitHub Pages
+        id: deploy-pages
+        uses: actions/deploy-pages@v4
