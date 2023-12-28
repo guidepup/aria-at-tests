@@ -159,7 +159,7 @@ jobs:
           key: macos-testSuites-${{ hashFiles('aria-at') }}-${{ hashFiles('ignoredTests.json') }}
 
       - name: Run Tests
-        run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shardIndex }}/10
+        run: yarn test ./src/macOsVoiceOver.spec.ts --config macos.config.ts --shard ${{ matrix.shardIndex }}/20
         continue-on-error: true
 
       - name: Upload Playwright Artifacts
@@ -271,9 +271,6 @@ jobs:
     if: always()
     needs: [test-voiceover, test-nvda]
     runs-on: ubuntu-latest
-    environment:
-      name: aria-at-tests-report
-      url: ${{ steps.deploy-pages.outputs.page_url }}
     steps:
       - name: Clear Space
         run: |
@@ -304,6 +301,14 @@ jobs:
         with:
           node-version: 20
 
+      - name: Update Deployment Status - Start
+        uses: bobheadxi/deployments@v1
+        id: deployment
+        with:
+          step: start
+          env: aria-at-tests-report
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions/download-artifact@v4
         with:
           pattern: playwright-report-*
@@ -323,14 +328,25 @@ jobs:
       - name: Cleanup Downloads
         run: rm -rf ./playwright-report || true
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload HTML Report
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        id: vercel-action
         with:
-          path: html-report
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          github-comment: false
+          vercel-args: "--prod"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          working-directory: html-report
 
-      - name: Deploy to GitHub Pages
-        id: deploy-pages
-        uses: actions/deploy-pages@v4
+      - name: Update Deployment Status - Finish
+        uses: bobheadxi/deployments@v1
+        if: always()
+        with:
+          step: finish
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          env: ${{ steps.deployment.outputs.env }}
+          env_url: ${{ steps.vercel-action.outputs.preview-url }}
