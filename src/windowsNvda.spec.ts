@@ -185,7 +185,6 @@ const generateTestSuite = ({
 
             try {
               await attachRecording({
-                osPlatform,
                 path: stopRecording?.(),
                 test,
               });

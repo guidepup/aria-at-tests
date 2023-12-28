@@ -3,18 +3,15 @@ import { basename } from "path";
 import { test as playwrightTest } from "@playwright/test";
 import { delay } from "./delay";
 
-const MP4 = "video/mp4";
 const MOV = "video/quicktime";
 
 const EXISTS_RETRIES = 20;
 const EXISTS_WAIT = 100;
 
 export const attachRecording = async ({
-  osPlatform,
   path,
   test,
 }: {
-  osPlatform: NodeJS.Platform;
   path: string;
   test: typeof playwrightTest;
 }) => {
@@ -42,7 +39,6 @@ export const attachRecording = async ({
   }
 
   const name = basename(path);
-  const contentType = osPlatform === "darwin" ? MOV : MP4;
 
-  await test.info().attach(name, { contentType, path });
+  await test.info().attach(name, { contentType: MOV, path });
 };
