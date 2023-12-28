@@ -4,7 +4,7 @@ import { ScreenReader } from "@guidepup/guidepup";
 import { Test } from "./types";
 import { log } from "./log";
 
-const PAGE_LOAD_DELAY = 250;
+const PAGE_LOAD_DELAY = 500;
 
 export async function setup({
   hasSetupScript,
@@ -35,6 +35,9 @@ export async function setup({
   await delay(PAGE_LOAD_DELAY);
 
   await screenReader.perform(moveToSystemFocusCommand);
+  await screenReader.perform(moveToSystemFocusCommand);
+  await screenReader.perform(moveToSystemFocusCommand);
+
   await screenReader.clearSpokenPhraseLog();
   await screenReader.clearItemTextLog();
 

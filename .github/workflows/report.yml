@@ -186,7 +186,7 @@ jobs:
 
       - name: Upload Playwright Artifacts
         uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ !cancelled() }}
         continue-on-error: true
         with:
           name: artifacts-macos-voiceover-${{ matrix.shardIndex }}
@@ -196,7 +196,7 @@ jobs:
 
       - name: Upload HTML Report Artifacts
         uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ !cancelled() }}
         continue-on-error: true
         with:
           name: playwright-report-macos-voiceover-${{ matrix.shardIndex }}
@@ -272,7 +272,7 @@ jobs:
 
       - name: Upload Playwright Artifacts
         uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ !cancelled() }}
         continue-on-error: true
         with:
           name: artifacts-windows-nvda-${{ matrix.shardIndex }}
@@ -282,7 +282,7 @@ jobs:
 
       - name: Upload HTML Report Artifacts
         uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ !cancelled() }}
         continue-on-error: true
         with:
           name: playwright-report-windows-nvda-${{ matrix.shardIndex }}
@@ -290,7 +290,7 @@ jobs:
 
   publish-html-report:
     name: Publish HTML Report
-    if: always()
+    if: ${{ !cancelled() }}
     needs: [test-voiceover, test-nvda]
     runs-on: ubuntu-latest
     steps:
@@ -364,7 +364,7 @@ jobs:
 
       - name: Update Deployment Status - Finish
         uses: bobheadxi/deployments@v1
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           step: finish
           token: ${{ secrets.GITHUB_TOKEN }}
