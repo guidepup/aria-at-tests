@@ -13,15 +13,14 @@ const config: PlaywrightTestConfig = {
       name: "webkit",
       use: { ...devices["Desktop Safari"], headless: false },
     },
-    // TODO: Enable once figure out storage size situation.
-    // {
-    //   name: "firefox",
-    //   use: { ...devices["Desktop Firefox"], headless: false },
-    // },
-    // {
-    //   name: "chromium",
-    //   use: { ...devices["Desktop Chrome"], headless: false },
-    // },
+    {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"], headless: false },
+    },
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"], headless: false },
+    },
   ],
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
 };
