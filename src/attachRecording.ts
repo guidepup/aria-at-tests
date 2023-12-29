@@ -24,6 +24,11 @@ export const attachRecording = async ({
     return;
   }
 
+  // Only attach if not a retry
+  if (test.info().retry > 0) {
+    return;
+  }
+
   for (let i = 0; i < EXISTS_RETRIES; i++) {
     try {
       accessSync(path, constants.F_OK);
