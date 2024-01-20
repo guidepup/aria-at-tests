@@ -1,8 +1,6 @@
 import { platform, release } from "os";
-import { voTest as test } from "@guidepup/playwright";
-import { VoiceOver } from "@guidepup/guidepup";
-import { KeyCodes } from "@guidepup/guidepup/lib/macOS/KeyCodes";
-import { Modifiers } from "@guidepup/guidepup/lib/macOS/Modifiers";
+import { voiceOverTest as test } from "@guidepup/playwright";
+import { VoiceOver, MacOSKeyCodes, MacOSModifiers } from "@guidepup/guidepup";
 import { record } from "./record";
 import { setup } from "./setup";
 import { readTestSuitesCacheSync, TestSuite } from "./testSuites";
@@ -28,7 +26,7 @@ const mapCommand = (
   | {
       error?: undefined;
       voiceOverCommand: true;
-      mappedCommand: { keyCode: KeyCodes[]; modifiers: Modifiers[] };
+      mappedCommand: { keyCode: MacOSKeyCodes[]; modifiers: MacOSModifiers[] };
     }
   | {
       error?: undefined;
@@ -41,14 +39,14 @@ const mapCommand = (
     keys.includes("Control") && keys.includes("Options");
 
   if (isVoiceOverCommand) {
-    const keyCodes: KeyCodes[] = [];
-    const modifiers: Modifiers[] = [];
+    const keyCodes: MacOSKeyCodes[] = [];
+    const modifiers: MacOSModifiers[] = [];
 
     for (const key of keys) {
-      if (typeof Modifiers[key] !== "undefined") {
-        modifiers.push(Modifiers[key]);
-      } else if (typeof KeyCodes[key] !== "undefined") {
-        keyCodes.push(KeyCodes[key as keyof KeyCodes]);
+      if (typeof MacOSModifiers[key] !== "undefined") {
+        modifiers.push(MacOSModifiers[key]);
+      } else if (typeof MacOSKeyCodes[key] !== "undefined") {
+        keyCodes.push(MacOSKeyCodes[key as keyof MacOSKeyCodes]);
       } else {
         return { error: true };
       }
@@ -67,9 +65,9 @@ const mapCommand = (
   const modifiers: string[] = [];
 
   for (const key of keys) {
-    if (typeof Modifiers[key] !== "undefined") {
+    if (typeof MacOSModifiers[key] !== "undefined") {
       modifiers.push(key);
-    } else if (typeof KeyCodes[key] !== "undefined") {
+    } else if (typeof MacOSKeyCodes[key] !== "undefined") {
       keyCodes.push(key);
     } else {
       return { error: true };
@@ -169,11 +167,13 @@ const generateTestSuite = ({
       test.describe(screenReaderTest.title, () => {
         let stopRecording: () => string;
 
-        test.beforeEach(async ({ page, voiceOver }) => {
+        test.beforeEach(async ({ browser, browserName, page, voiceOver }) => {
           table(screenReaderTest);
 
           try {
             stopRecording = record({
+              browserName,
+              browserVersion: browser.version(),
               test,
               screenReaderName,
             });

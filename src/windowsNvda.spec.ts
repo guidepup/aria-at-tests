@@ -1,8 +1,6 @@
 import { platform, release } from "os";
-import { nvdaTest as test } from "./nvdaTest";
-import { NVDA } from "@guidepup/guidepup";
-import { KeyCodes } from "@guidepup/guidepup/lib/windows/KeyCodes";
-import { Modifiers } from "@guidepup/guidepup/lib/windows/Modifiers";
+import { NVDAPlaywright, nvdaTest as test } from "@guidepup/playwright";
+import { NVDA, WindowsKeyCodes, WindowsModifiers } from "@guidepup/guidepup";
 import { record } from "./record";
 import { setup } from "./setup";
 import { readTestSuitesCacheSync, TestSuite } from "./testSuites";
@@ -21,15 +19,15 @@ test.describe.configure({ mode: "parallel" });
 
 const screenReaderName = "nvda";
 
-type KeyCodesType = (typeof KeyCodes)[keyof typeof KeyCodes];
-type ModifiersType = (typeof Modifiers)[keyof typeof Modifiers];
+type KeyCodesType = (typeof WindowsKeyCodes)[keyof typeof WindowsKeyCodes];
+type ModifiersType = (typeof WindowsModifiers)[keyof typeof WindowsModifiers];
 
 const setMode = async ({
   mode,
   screenReader,
 }: {
   mode: Test["mode"];
-  screenReader: NVDA;
+  screenReader: NVDAPlaywright;
 }) => {
   if (mode === "interaction") {
     await screenReader.perform(screenReader.keyboardCommands.exitFocusMode);
@@ -55,10 +53,10 @@ const mapCommand = (
   const modifiers: ModifiersType[] = [];
 
   for (const key of keys) {
-    if (typeof Modifiers[key] !== "undefined") {
-      modifiers.push(Modifiers[key]);
-    } else if (typeof KeyCodes[key] !== "undefined") {
-      keyCodes.push(KeyCodes[key]);
+    if (typeof WindowsModifiers[key] !== "undefined") {
+      modifiers.push(WindowsModifiers[key]);
+    } else if (typeof WindowsKeyCodes[key] !== "undefined") {
+      keyCodes.push(WindowsKeyCodes[key]);
     } else {
       return { error: true };
     }
@@ -141,11 +139,13 @@ const generateTestSuite = ({
       test.describe(screenReaderTest.title, () => {
         let stopRecording: () => string;
 
-        test.beforeEach(async ({ page, nvda }) => {
+        test.beforeEach(async ({ browser, browserName, page, nvda }) => {
           table(screenReaderTest);
 
           try {
             stopRecording = record({
+              browserName,
+              browserVersion: browser.version(),
               test,
               screenReaderName,
             });

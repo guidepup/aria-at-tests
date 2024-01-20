@@ -1,15 +1,14 @@
 import { Page } from "@playwright/test";
 import { delay } from "./delay";
-import { ScreenReader } from "@guidepup/guidepup";
 import { Test } from "./types";
 import { log } from "./log";
+import { VoiceOverPlaywright, NVDAPlaywright } from "@guidepup/playwright";
 
 const PAGE_LOAD_DELAY = 500;
 
 export async function setup({
   hasSetupScript,
   mode,
-  moveToSystemFocusCommand,
   page,
   screenReader,
   setMode,
@@ -19,13 +18,13 @@ export async function setup({
   mode: Test["mode"];
   moveToSystemFocusCommand: unknown;
   page: Page;
-  screenReader: ScreenReader;
+  screenReader: VoiceOverPlaywright | NVDAPlaywright;
   setMode: ({
     mode,
     screenReader,
   }: {
     mode: Test["mode"];
-    screenReader: ScreenReader;
+    screenReader: VoiceOverPlaywright | NVDAPlaywright;
   }) => void | Promise<void>;
   testUrl: string;
 }): Promise<void> {
@@ -34,14 +33,12 @@ export async function setup({
   await page.goto(testUrl, { waitUntil: "load" });
   await delay(PAGE_LOAD_DELAY);
 
-  await screenReader.perform(moveToSystemFocusCommand);
-  await screenReader.perform(moveToSystemFocusCommand);
-  await screenReader.perform(moveToSystemFocusCommand);
-
-  await screenReader.clearSpokenPhraseLog();
-  await screenReader.clearItemTextLog();
+  await screenReader.navigateToWebContent();
 
   if (hasSetupScript) {
+    await page.goto(testUrl, { waitUntil: "load" });
+    await delay(PAGE_LOAD_DELAY);
+
     log("Running test setup.");
 
     await screenReader.act();

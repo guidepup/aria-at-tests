@@ -32,16 +32,16 @@
     "test:report": "ts-node src/report.ts"
   },
   "dependencies": {
-    "@guidepup/guidepup": "^0.21.1",
-    "@guidepup/playwright": "^0.12.0",
-    "@playwright/test": "^1.40.1",
+    "@guidepup/guidepup": "^0.22.0",
+    "@guidepup/playwright": "^0.13.1",
+    "@playwright/test": "^1.41.1",
     "csvtojson": "^2.0.10",
     "playwright-merge-html-reports": "^0.2.8"
   },
   "devDependencies": {
-    "@types/node": "^20.10.5",
-    "@typescript-eslint/eslint-plugin": "^6.16.0",
-    "@typescript-eslint/parser": "^6.16.0",
+    "@types/node": "^20.11.5",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "ts-node": "^10.9.2",

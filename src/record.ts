@@ -5,9 +5,13 @@ import { join } from "path";
 import { table } from "./log";
 
 export function record({
+  browserName,
+  browserVersion,
   screenReaderName,
   test,
 }: {
+  browserName: string;
+  browserVersion: string;
   screenReaderName: string;
   test: typeof playwrightTest;
 }): () => string {
@@ -22,7 +26,7 @@ export function record({
 
   switch (platformName) {
     case "darwin": {
-      const recordingFileName = `test_${platformName}_${release()}_${screenReaderName}_${sanitizedTitle}_attempt_${retry}.mov`;
+      const recordingFileName = `test_${platformName}_${release()}_${browserName}_${browserVersion}_${screenReaderName}_${sanitizedTitle}_attempt_${retry}.mov`;
       const recordingFilePath = join("./recordings/", recordingFileName);
 
       table({ recordingFileName });
@@ -36,7 +40,7 @@ export function record({
       };
     }
     case "win32": {
-      const recordingFileName = `test_${platformName}_${release()}_${screenReaderName}_${sanitizedTitle}_attempt_${retry}.mp4`;
+      const recordingFileName = `test_${platformName}_${release()}_${browserName}_${browserVersion}_${screenReaderName}_${sanitizedTitle}_attempt_${retry}.mp4`;
       const recordingFilePath = join("./recordings/", recordingFileName);
 
       table({ recordingFileName });
