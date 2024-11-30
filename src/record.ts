@@ -1,4 +1,4 @@
-import { macOSRecord, windowsRecord } from "@guidepup/guidepup";
+import { macOSRecord, windowsRecord } from "@guidepup/record";
 import { test as playwrightTest } from "@playwright/test";
 import { platform, release } from "os";
 import { join } from "path";
