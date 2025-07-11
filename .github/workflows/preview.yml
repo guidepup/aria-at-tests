@@ -24,7 +24,7 @@ jobs:
     name: MacOS Install
     runs-on: macos-12
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -72,7 +72,7 @@ jobs:
     name: Windows Install
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -126,7 +126,7 @@ jobs:
         shardIndex: [1]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -190,7 +190,7 @@ jobs:
         shardIndex: [1]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -271,7 +271,7 @@ jobs:
           sudo apt-get autoremove -y
           sudo apt-get clean
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
