@@ -28,9 +28,9 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
 
       - name: Cache node_modules
         uses: actions/cache@v3
@@ -76,9 +76,9 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
 
       - name: Cache node_modules
         uses: actions/cache@v3
@@ -152,9 +152,9 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
 
       - name: Guidepup Setup
         uses: guidepup/setup-action@0.13.0
@@ -238,9 +238,9 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
 
       - name: Guidepup Setup
         uses: guidepup/setup-action@0.13.0
@@ -319,9 +319,9 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
 
       - name: Update Deployment Status - Start
         uses: bobheadxi/deployments@v1
