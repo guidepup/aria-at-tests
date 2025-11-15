@@ -22,18 +22,18 @@ concurrency:
 jobs:
   macos-install:
     name: MacOS Install
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version-file: .nvmrc
 
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-macos-node-modules
         with:
           path: |
@@ -41,7 +41,7 @@ jobs:
           key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Playwright binaries
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-macos-playwright
         with:
           path: |
@@ -49,7 +49,7 @@ jobs:
           key: macos-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Test Suites
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-macos-test-suites
         with:
           path: |
@@ -72,16 +72,16 @@ jobs:
     name: Windows Install
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version-file: .nvmrc
 
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-windows-node-modules
         with:
           path: |
@@ -89,7 +89,7 @@ jobs:
           key: windows-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Playwright binaries
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-windows-playwright
         with:
           path: |
@@ -97,7 +97,7 @@ jobs:
           key: windows-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Test Suites
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-windows-test-suites
         with:
           path: |
@@ -119,7 +119,7 @@ jobs:
   test-voiceover:
     name: Playwright VoiceOver Tests (${{ matrix.shardIndex }} / 20)
     needs: macos-install
-    runs-on: macos-12
+    runs-on: macos-14
     strategy:
       fail-fast: false
       matrix:
@@ -148,33 +148,33 @@ jobs:
           ]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version-file: .nvmrc
 
       - name: Guidepup Setup
-        uses: guidepup/setup-action@0.13.0
+        uses: guidepup/setup-action@0.17.3
 
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
           key: macos-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Playwright
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/Library/Caches/ms-playwright
           key: macos-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Test Suites
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             testSuites.json
@@ -234,33 +234,33 @@ jobs:
           ]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version-file: .nvmrc
 
       - name: Guidepup Setup
-        uses: guidepup/setup-action@0.13.0
+        uses: guidepup/setup-action@0.17.3
 
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
           key: windows-modules-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Playwright
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             C:\Users\runneradmin\AppData\Local\ms-playwright
           key: windows-playwright-${{ hashFiles('yarn.lock') }}-${{ hashFiles('package.json') }}
 
       - name: Cache Test Suites
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             testSuites.json
@@ -315,13 +315,13 @@ jobs:
           sudo apt-get autoremove -y
           sudo apt-get clean
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version-file: .nvmrc
 
       - name: Update Deployment Status - Start
         uses: bobheadxi/deployments@v1
@@ -337,7 +337,7 @@ jobs:
           path: ./playwright-report
 
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-macos-node-modules
         with:
           path: |
